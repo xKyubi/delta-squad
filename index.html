@@ -229,7 +229,7 @@
   .search-input:focus{ border-color: var(--stone-dim); box-shadow: 0 0 0 2px rgba(183,172,144,0.15); }
   .search-input::placeholder{ color:var(--text-dim); }
 
-  .members-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-bottom:20px;}
+  .members-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,240px)); justify-content:center; gap:18px; margin-bottom:20px;}
   .member-card{
     position:relative; border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden;
     aspect-ratio:1/1; opacity:0; animation: fadeUp 0.4s ease forwards; background:var(--panel);
@@ -465,42 +465,15 @@ const membersData = [
   {name:"Abdulmohsen AlQahtani", nick:"vD7SN", rank:"Member", status:"online", hours:0, points:0},
   {name:"Adel alshammari ", nick:"2mzx", rank:"Member", status:"online", hours:0, points:0},
   {name:"Mahmoud Fhmawy", nick:"FHMAWY", rank:"Member", status:"online", hours:0, points:0},
-  {name:"VIRUS", nick:"None", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Mohammed", nick:"Mohammed Alotaibi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Mno116", nick:"Jubran Albeshre", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Turki", nick:"Turki Alotibi", rank:"Member", status:"online", hours:0, points:0},
+  {name:"None", nick:"VIRUS", rank:"Member", status:"online", hours:0, points:0},
+  {name:"Mohammed Alotaibi", nick:"Mohammed", rank:"Member", status:"online", hours:0, points:0},
+  {name:"Jubran Albeshre", nick:"Mno116", rank:"Member", status:"online", hours:0, points:0},
+  {name:"Turki Alotibi", nick:"Turki", rank:"Member", status:"online", hours:0, points:0},
   {name:"Kyubi", nick:"Nick Reyes", rank:"Member", status:"online", hours:0, points:0},
-  {name:"M3AND", nick:"Ameer Ali", rank:"Member", status:"online", hours:0, points:0},
-  {name:"K3MO", nick:"Grey Wolf", rank:"Member", status:"online", hours:0, points:0},
-  {name:"W", nick:"Mark Murphy", rank:"Member", status:"online", hours:0, points:0},
-  {name:"OMAR", nick:"omar altamimi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"vMohnd", nick:"Sand Fahad", rank:"Member", status:"online", hours:0, points:0},
-  {name:"MoNtY", nick:"Nshmy alshmrani", rank:"Member", status:"online", hours:0, points:0},
-  {name:"FTEN", nick:"Mohammed Farhan", rank:"Member", status:"online", hours:0, points:0},
-  {name:"AYMN", nick:" Abdullah Asiri", rank:"Member", status:"online", hours:0, points:0},
-  {name:"DieSeL", nick:"None", rank:"Member", status:"online", hours:0, points:0},
-  {name:"iMLKq", nick:"Abo Mlk", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Sitro", nick:"Nawaf Wael", rank:"Member", status:"online", hours:0, points:0},
-  {name:"DRAXR", nick:"DRAXR Petrov", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Moath", nick:" EQAB AL-Ruwaili", rank:"Member", status:"online", hours:0, points:0},
-  {name:"ALDRBSY", nick:"DRBSY ALDRBSY", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Laith", nick:"Laith Mashal", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Roy", nick:"Rana Alanzi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Bone", nick:"Abdulrhman Jaber", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Victor", nick:"Bandar Al-Tamimi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"mezar", nick:"Mezar AlHashmi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"SlideBee", nick:"Abdulaziz Abdullah", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Alo", nick:"Ali Abdullah", rank:"Member", status:"online", hours:0, points:0},
-  {name:"1SBS", nick:"ASHAQ ALQAHTANI", rank:"Member", status:"online", hours:0, points:0},
-  {name:"TKSR", nick:"Abdulrahman Aldawsari", rank:"Member", status:"online", hours:0, points:0},
-  {name:"q7t", nick:"Faisal AlQahtany", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Hattan", nick:"None", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Mr.Evil", nick:"Abdulmohsen Alharbi", rank:"Member", status:"online", hours:0, points:0},
-  {name:"vIHAMZA", nick:"HAMZA ASIRI", rank:"Member", status:"online", hours:0, points:0},
 ];
 
 const MEMBER_PHOTOS = {
-  "Kyubi": "assets/members/kyubi.jpg"
+  "Nick Reyes": "assets/members/kyubi.jpg"
 };
 
 function initials(name){ return name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''); }
