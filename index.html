@@ -456,26 +456,6 @@ showSection((location.hash || '#board').slice(1), false);
 /* ---------- shared roster (loaded live from Google Sheet) ---------- */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/10gHDqDGEUs87pMtTw0BMKKyvCSHzmXbpcCGfhhiNV2c/export?format=csv&gid=430321705";
 
-/* نسخة احتياطية (بياناتك الحالية) تُستخدم فقط لو تعذّر الوصول للشيت */
-const FALLBACK_MEMBERS = [
-  {name:"Muqrin Fahad", nick:"Abdulaziz", rank:"Leader", status:"online", hours:50, points:50},
-  {name:"abadi Abdullah", nick:"rchx", rank:"Co-Leader", status:"online", hours:25, points:25},
-  {name:"Nawaf Almutiri", nick:"Nawaf", rank:"Co-Leader", status:"online", hours:5, points:5},
-  {name:"AbdullaH Alsubaie", nick:"AbdullaH.", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Dafallah ibrahim", nick:"TOOHET", rank:"Management", status:"online", hours:0, points:0},
-  {name:"Yousef Binadnan", nick:"Yousef", rank:"Management", status:"online", hours:0, points:0},
-  {name:"Mohammed Alotaibi", nick:"Mohammed", rank:"Management", status:"online", hours:0, points:0},
-  {name:"Abdulrahman Alqattan", nick:"ALQATTAN", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Abdulmohsen AlQahtani", nick:"vD7SN", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Adel alshammari ", nick:"2mzx", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Mahmoud Fhmawy", nick:"FHMAWY", rank:"Member", status:"online", hours:0, points:0},
-  {name:"None", nick:"VIRUS", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Jubran Albeshre", nick:"Mno116", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Turki Alotibi", nick:"Turki", rank:"Member", status:"online", hours:0, points:0},
-  {name:"Nick Reyes", nick:"Kyubi", rank:"Member", status:"online", hours:111, points:111},
-  {name:"Mezar AlHashmi", nick:"mezar", rank:"Member", status:"online", hours:0, points:0},
-];
-
 const MEMBER_PHOTOS = {
   "Nick Reyes": "assets/members/kyubi.jpg",
   "Muqrin Fahad": "assets/members/abdulaziz.jpg",
@@ -683,11 +663,22 @@ fetch(SHEET_CSV_URL)
   .then(text => {
     const rows = parseCSV(text);
     const members = sheetRowsToMembers(rows);
-    initFromMembers(members.length ? members : FALLBACK_MEMBERS);
+    if(members.length){
+      initFromMembers(members);
+    } else {
+      showSheetError();
+    }
   })
   .catch(() => {
-    initFromMembers(FALLBACK_MEMBERS);
+    showSheetError();
   });
+
+function showSheetError(){
+  const msg = '<div class="empty-state">تعذّر تحميل البيانات من الشيت — تأكد إن مشاركته "Anyone with the link can view" وإن فيه بيانات في الورقة الصحيحة.</div>';
+  podiumEl.innerHTML = msg;
+  boardEl.innerHTML = '';
+  membersGrid.innerHTML = msg;
+}
 
 /* ---------- tasks (new) ---------- */
 const tasksData = [
