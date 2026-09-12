@@ -22,6 +22,7 @@
     --bronze: #6c6d72;
     --ok: #6fae6f;
     --warn: #b3312a;
+    --hier-orange: #e8822f;
     --radius-lg: 14px;
     --radius-md: 10px;
     --radius-sm: 8px;
@@ -278,53 +279,48 @@
   .modal-close:hover{ color:var(--stone); border-color:var(--stone-dim); }
   .modal-title{ font-family:'Oswald',sans-serif; font-weight:700; font-size:21px; text-align:center; margin:0 0 4px; color:#f2ecd9; }
 
-  /* ---- Timeline ---- */
-  .timeline{ position:relative; padding:8px 0; }
-  .timeline::before{
-    content:""; position:absolute; top:0; bottom:0; right:50%; width:2px; background:var(--line); transform:translateX(1px);
-  }
-  .timeline-item{ position:relative; display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:18px; align-items:start; }
-  .timeline-item:last-child{ margin-bottom:0; }
-  .timeline-marker{
-    position:absolute; right:50%; top:0; transform:translateX(50%);
-    width:26px; height:26px; border-radius:50%; background:var(--bg); border:2px solid var(--stone);
-    display:flex; align-items:center; justify-content:center; font-family:'Oswald',sans-serif; font-weight:700; font-size:11.5px; color:var(--stone);
-    z-index:1;
-  }
+  /* ---- Timeline (grid layout) ---- */
+  .timeline{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; }
+  .timeline-item{ display:flex; }
   .timeline-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px;
-    grid-column:1; margin-top:34px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 16px;
+    width:100%; display:flex; flex-direction:column; gap:4px;
   }
-  .timeline-item:nth-child(even) .timeline-card{ grid-column:2; }
-  .timeline-card h4{ font-size:13px; font-weight:700; margin:0 0 5px; color:var(--stone); }
+  .timeline-marker{
+    display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+    width:22px; height:22px; border-radius:50%; background:var(--bg); border:2px solid var(--stone);
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:11px; color:var(--stone); margin-left:8px;
+  }
+  .timeline-card h4{ font-size:13px; font-weight:700; margin:0; color:var(--stone); display:flex; align-items:center; }
   .timeline-card p{ font-size:12px; color:var(--text-dim); line-height:1.6; margin:0; }
-  @media (max-width:640px){
-    .timeline::before{ right:16px; }
-    .timeline-item{ grid-template-columns:1fr; gap:8px; padding-right:40px; }
-    .timeline-marker{ right:16px; top:0; transform:translateX(50%); width:28px; height:28px; font-size:12px; }
-    .timeline-card, .timeline-item:nth-child(even) .timeline-card{ grid-column:1; margin-top:36px; }
+  @media (max-width:560px){
+    .timeline{ grid-template-columns:1fr; }
   }
 
-  /* ---- Hierarchy tree ---- */
-  .hier-tier{ display:flex; justify-content:center; flex-wrap:wrap; gap:36px; position:relative; margin-bottom:12px; }
-  .hier-connector{ width:1px; height:22px; background:var(--line); margin:0 auto 12px; }
+  /* ---- Hierarchy tree (matches reference exactly) ---- */
+  .hier-tier{ display:flex; justify-content:center; gap:36px; position:relative; margin:0 auto; width:fit-content; }
+  .hier-sibling-bar{ height:1px; background:var(--hier-orange); margin:0 auto; opacity:0.7; }
+  .hier-connector{ width:1px; height:26px; background:var(--hier-orange); margin:0 auto; opacity:0.7; }
+  .hier-block{ display:flex; flex-direction:column; align-items:center; margin-bottom:0; }
   .hier-node{
-    display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; position:relative;
     opacity:0; animation: fadeUp 0.5s ease forwards;
   }
-  .hex-glow{ position:relative; width:210px; height:230px; padding-top:20px; }
-  .hex-glow::before{
-    content:""; position:absolute; top:-40px; left:50%; transform:translateX(-50%);
-    width:120px; height:120px; border-radius:50%;
-    background: radial-gradient(circle, rgba(255,244,214,0.55), transparent 72%);
-    transition: opacity .25s ease; opacity:0.65;
-    animation: lampGlow 2.6s ease-in-out infinite;
-    pointer-events:none;
+  .hier-node.has-stub::before{
+    content:""; position:absolute; top:-26px; right:50%; width:1px; height:26px; background:var(--hier-orange); opacity:0.7;
   }
-  @keyframes lampGlow{ 0%,100%{ opacity:0.5; transform:translateX(-50%) scale(1); } 50%{ opacity:0.9; transform:translateX(-50%) scale(1.12); } }
+  .hex-glow{ position:relative; width:210px; height:210px; margin-top:10px; }
+  .hex-glow::before{
+    content:""; position:absolute; inset:-30px; border-radius:50%;
+    background: radial-gradient(circle, rgba(232,130,45,0.5), transparent 70%);
+    transition: opacity .25s ease; opacity:0.6;
+    animation: lampGlow 2.6s ease-in-out infinite;
+    pointer-events:none; z-index:0;
+  }
+  @keyframes lampGlow{ 0%,100%{ opacity:0.45; transform:scale(1); } 50%{ opacity:0.85; transform:scale(1.06); } }
   .hier-node:hover .hex-glow::before{ opacity:1; animation-duration:1.2s; }
   .hex-avatar{
-    position:relative; width:210px; height:210px;
+    position:relative; z-index:1; width:210px; height:210px;
     clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
     background:#1c1d20 center/cover no-repeat; border:1px solid var(--line);
     display:flex; align-items:center; justify-content:center;
@@ -332,8 +328,9 @@
     transition: transform .2s ease;
   }
   .hier-node:hover .hex-avatar{ transform:scale(1.06); }
-  .hier-name{ font-size:16px; font-weight:700; color:#f2ecd9; }
-  .hier-rank{ font-family:'Oswald',sans-serif; font-size:11.5px; letter-spacing:1.5px; color:var(--warn); text-transform:uppercase; }
+  .hier-name{ font-size:16px; font-weight:500; color:#b8b8b8; }
+  .hier-rank{ font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:1.5px; color:var(--hier-orange); text-transform:uppercase; }
+  .hier-rank::after{ content:" ▲"; font-size:10px; }
 
   .toolbar{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:22px 0 28px;}
   .search-input{
@@ -575,51 +572,44 @@
       <div class="brand-underline" style="margin-bottom:26px;"><span></span><em>TRAINING STAGES</em><span></span></div>
       <div class="timeline">
         <div class="timeline-item">
-          <div class="timeline-marker">1</div>
           <div class="timeline-card">
-            <h4>المرحلة 1: الالتزام بتسلسل القيادة</h4>
+            <h4><span class="timeline-marker">1</span>المرحلة 1: الالتزام بتسلسل القيادة</h4>
             <p>الالتزام التام بتعليمات الليدر والكو ليدر، وعدم تجاوز قرارات القيادة أثناء المباشرة.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">2</div>
           <div class="timeline-card">
-            <h4>المرحلة 2: الاحترام والعمل الجماعي</h4>
+            <h4><span class="timeline-marker">2</span>المرحلة 2: الاحترام والعمل الجماعي</h4>
             <p>يمنع التثبيط أو إثارة الخلافات والنزاعات الفردية بين أفراد السكواد الواحدة.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">3</div>
           <div class="timeline-card">
-            <h4>المرحلة 3: انضباط التواجد والتحركات</h4>
+            <h4><span class="timeline-marker">3</span>المرحلة 3: انضباط التواجد والتحركات</h4>
             <p>التحرك كوحدة واحدة أثناء تنفيذ المهام، وعدم الاستقلال الفردي دون إذن الليدر.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">4</div>
           <div class="timeline-card">
-            <h4>المرحلة 4: بروتوكول التواصل والراديو</h4>
+            <h4><span class="timeline-marker">4</span>المرحلة 4: بروتوكول التواصل والراديو</h4>
             <p>الالتزام بنقل المعلومات بدقة وإيجاز في موجة الراديو، وتجنب التشتيت أو الأحاديث الجانبية.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">5</div>
           <div class="timeline-card">
-            <h4>المرحلة 5: الجدية والانضباط الميداني</h4>
+            <h4><span class="timeline-marker">5</span>المرحلة 5: الجدية والانضباط الميداني</h4>
             <p>الالتزام التام أثناء المباشرات والمهمات، والابتعاد عن العشوائية أو الفوضى.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">6</div>
           <div class="timeline-card">
-            <h4>المرحلة 6: المشاركة والمتابعة</h4>
+            <h4><span class="timeline-marker">6</span>المرحلة 6: المشاركة والمتابعة</h4>
             <p>الحرص على تسجيل التواجد الدائم، وإبلاغ القيادة في حال الاعتذار أو الغياب.</p>
           </div>
         </div>
         <div class="timeline-item">
-          <div class="timeline-marker">7</div>
           <div class="timeline-card">
-            <h4>المرحلة 7: الأشخاص المصرح لهم باستخراج الفرقة</h4>
+            <h4><span class="timeline-marker">7</span>المرحلة 7: الأشخاص المصرح لهم باستخراج الفرقة</h4>
             <p>abadi Abdullah — Nawaf Almutiri</p>
           </div>
         </div>
@@ -693,6 +683,7 @@ const HIERARCHY_ORDER = [
 function renderHierarchy(){
   hierarchyTreeEl.innerHTML = '';
   let anyTier = false;
+  const NODE_STEP = 246; /* عرض الصورة + الفراغ بينها، لحساب طول الخط الأفقي بدقة */
   HIERARCHY_ORDER.forEach((names, tIdx) => {
     const people = names
       .map(n => (currentRoster || []).find(r => r.name.trim().toLowerCase() === n.trim().toLowerCase()))
@@ -700,10 +691,18 @@ function renderHierarchy(){
     if(!people.length) return;
     anyTier = true;
     if(tIdx > 0) hierarchyTreeEl.insertAdjacentHTML('beforeend', '<div class="hier-connector"></div>');
+
+    const hasSiblingBar = people.length > 1;
+    const block = document.createElement('div');
+    block.className = 'hier-block';
+    if(hasSiblingBar){
+      const barWidth = (people.length - 1) * NODE_STEP;
+      block.insertAdjacentHTML('beforeend', `<div class="hier-sibling-bar" style="width:${barWidth}px"></div>`);
+    }
     const row = document.createElement('div');
     row.className = 'hier-tier';
     row.innerHTML = people.map((p,i) => `
-      <div class="hier-node" style="animation-delay:${i*0.08}s">
+      <div class="hier-node${hasSiblingBar ? ' has-stub' : ''}" style="animation-delay:${i*0.08}s">
         <div class="hex-glow">
           <div class="hex-avatar"${avatarStyle(p.photo)}>${p.photo ? '' : initials(p.name)}</div>
         </div>
@@ -711,7 +710,8 @@ function renderHierarchy(){
         <div class="hier-rank">${p.rank}</div>
       </div>
     `).join('');
-    hierarchyTreeEl.appendChild(row);
+    block.appendChild(row);
+    hierarchyTreeEl.appendChild(block);
   });
   if(!anyTier){
     hierarchyTreeEl.innerHTML = '<div class="empty-state">لا توجد بيانات قيادة متاحة حالياً</div>';
@@ -739,6 +739,32 @@ const MEMBER_PHOTOS = {
   "Yousef Binadnan": "assets/members/yousef.jpg",
   "Mohammed Alotaibi": "assets/members/mohammed.jpg",
   "Mezar AlHashmi": "assets/members/mezar.jpg"
+
+  "Bandar Al-Tamimi": "assets/members/Victor.jpg",
+  "AbdullaH Alsubaie": "assets/members/AbdullaH.jpg",
+  "Abdulrahman Alqattan ": "assets/members/Alqattan.jpg",
+  "Jumaan Yahya": "assets/members/AYMN.jpg",
+  "DRAXR Petrov": "assets/members/DRAXR.jpg",
+  "Mahmoud Fhmawy": "assets/members/FHMAWY.jpg",
+  "Mohammed Farhan": "assets/members/FTEN.jpg",
+  "Grey Wolf": "assets/members/K3MO.jpg",
+  "Ameer Ali": "assets/members/M3AND.jpg",
+  "Jubran Albeshre": "assets/members/Mno116.jpg",
+  "EQAB AL-Ruwaili": "assets/members/Moath.jpg",
+  "Abdullah Asiri": "assets/members/MoNtY.jpg",
+  "Abdulmohsen Alharbi": "assets/members/Mr.Evil.jpg",
+  "Sand Fahad": "assets/members/OFH.jpg",
+  "omar altamimi": "assets/members/OMAR.jpg",
+  "Faisal AlQahtany": "assets/members/q7t.jpg",
+  "Rana Alanzi": "assets/members/Roy.jpg",
+  "Nawaf Wael": "assets/members/Sitro.jpg",
+  "Abdulaziz Abdullah": "assets/members/SlideBee.jpg",
+  "Turki Alotibi": "assets/members/Turki.jpg",
+  "Abdulmohsen AlQahtani": "assets/members/vD7SN.jpg",
+  "HAMZA ASIRI": "assets/members/vIHAMZA.jpg",
+  "Nshmy alshmrani": "assets/members/vMohnd.jpg",
+  "Mark Murphy": "assets/members/W17.jpg",
+  "Adel alshammari ": "assets/members/2mzx.jpg"
 };
 
 function initials(name){ return (name||'').trim().split(' ').map(w=>w[0]).slice(0,2).join(''); }
