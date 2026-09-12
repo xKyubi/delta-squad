@@ -280,7 +280,7 @@
   .modal-title{ font-family:'Oswald',sans-serif; font-weight:700; font-size:21px; text-align:center; margin:0 0 4px; color:#f2ecd9; }
 
   /* ---- Timeline (grid layout) ---- */
-  .timeline{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; }
+  .timeline{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
   .timeline-item{ display:flex; }
   .timeline-card{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 16px;
@@ -566,7 +566,7 @@
 
   <!-- ===== مودال نظام التدريب (تايم لاين المراحل) ===== -->
   <div class="modal-overlay" id="training-modal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:960px;">
       <button class="modal-close" id="training-modal-close" type="button" aria-label="إغلاق">✕</button>
       <h2 class="modal-title">نظام التدريب</h2>
       <div class="brand-underline" style="margin-bottom:26px;"><span></span><em>TRAINING STAGES</em><span></span></div>
@@ -738,33 +738,7 @@ const MEMBER_PHOTOS = {
   "Dafallah ibrahim": "assets/members/toohet.jpg",
   "Yousef Binadnan": "assets/members/yousef.jpg",
   "Mohammed Alotaibi": "assets/members/mohammed.jpg",
-  "Mezar AlHashmi": "assets/members/mezar.jpg",
-
-  "Bandar Al-Tamimi": "assets/members/Victor.jpg",
-  "AbdullaH Alsubaie": "assets/members/AbdullaH.jpg",
-  "Abdulrahman Alqattan ": "assets/members/Alqattan.jpg",
-  "Jumaan Yahya": "assets/members/AYMN.jpg",
-  "DRAXR Petrov": "assets/members/DRAXR.jpg",
-  "Mahmoud Fhmawy": "assets/members/FHMAWY.jpg",
-  "Mohammed Farhan": "assets/members/FTEN.jpg",
-  "Grey Wolf": "assets/members/K3MO.jpg",
-  "Ameer Ali": "assets/members/M3AND.jpg",
-  "Jubran Albeshre": "assets/members/Mno116.jpg",
-  "EQAB AL-Ruwaili": "assets/members/Moath.jpg",
-  "Abdullah Asiri": "assets/members/MoNtY.jpg",
-  "Abdulmohsen Alharbi": "assets/members/Mr.Evil.jpg",
-  "Sand Fahad": "assets/members/OFH.jpg",
-  "omar altamimi": "assets/members/OMAR.jpg",
-  "Faisal AlQahtany": "assets/members/q7t.jpg",
-  "Rana Alanzi": "assets/members/Roy.jpg",
-  "Nawaf Wael": "assets/members/Sitro.jpg",
-  "Abdulaziz Abdullah": "assets/members/SlideBee.jpg",
-  "Turki Alotibi": "assets/members/Turki.jpg",
-  "Abdulmohsen AlQahtani": "assets/members/vD7SN.jpg",
-  "HAMZA ASIRI": "assets/members/vIHAMZA.jpg",
-  "Nshmy alshmrani": "assets/members/vMohnd.jpg",
-  "Mark Murphy": "assets/members/W17.jpg",
-  "Adel alshammari": "assets/members/2mzx.jpg"
+  "Mezar AlHashmi": "assets/members/mezar.jpg"
 };
 
 function initials(name){ return (name||'').trim().split(' ').map(w=>w[0]).slice(0,2).join(''); }
