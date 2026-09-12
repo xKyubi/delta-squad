@@ -831,14 +831,26 @@ function renderRules(list){
   }
   list.forEach((r,i)=>{
     const card = document.createElement('div');
-    card.className = 'task-card';
+    card.className = 'task-card rule-card';
     card.style.animationDelay = (i*0.06) + 's';
     card.innerHTML = `
-      <div class="task-top">
+      <div class="task-top rule-header" style="cursor:pointer; margin-bottom:0;">
         <h3 class="task-title">${r.title}</h3>
+        <svg class="rule-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-dim);flex-shrink:0;transition:transform .25s ease;"><path d="M6 9l6 6 6-6"/></svg>
       </div>
-      <p class="task-desc">${r.desc}</p>
+      <div class="rule-body" style="max-height:0; overflow:hidden; opacity:0; transition: max-height .35s ease, opacity .25s ease;">
+        <p class="task-desc" style="margin-top:10px;">${r.desc}</p>
+      </div>
     `;
+    const header = card.querySelector('.rule-header');
+    header.addEventListener('click', ()=>{
+      const body = card.querySelector('.rule-body');
+      const chevron = card.querySelector('.rule-chevron');
+      const isOpen = card.classList.toggle('open');
+      body.style.maxHeight = isOpen ? body.scrollHeight + 'px' : '0';
+      body.style.opacity = isOpen ? '1' : '0';
+      chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
     rulesList.appendChild(card);
   });
 }
