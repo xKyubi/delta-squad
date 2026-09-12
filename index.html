@@ -243,23 +243,20 @@
   }
   .overview-btn:hover{ border-color:var(--stone-dim); background:rgba(255,255,255,0.04); }
 
-  .rules-browser{ display:flex; gap:22px; align-items:flex-start; }
-  .rules-sidebar{
-    width:220px; flex-shrink:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg);
-    padding:16px; position:sticky; top:90px;
-  }
+  .rules-toolbar{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .rules-cats{ display:flex; flex-wrap:wrap; gap:8px; }
   .rules-cat-btn{
-    display:flex; align-items:center; gap:8px; width:100%; text-align:right; font-family:'Tajawal',sans-serif;
-    font-size:13px; color:var(--text-dim); background:transparent; border:none; padding:9px 10px; border-radius:var(--radius-sm);
-    cursor:pointer; transition: background .15s ease, color .15s ease; margin-bottom:2px;
+    font-family:'Tajawal',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-dim);
+    background:var(--panel); border:1px solid var(--line); padding:7px 16px; border-radius:20px;
+    cursor:pointer; transition: all .18s ease; white-space:nowrap;
   }
-  .rules-cat-btn:hover{ background:rgba(255,255,255,0.04); color:var(--stone); }
-  .rules-cat-btn.active{ background:var(--stone); color:#161616; font-weight:700; }
-  .rules-main{ flex:1; min-width:0; }
-  .rules-breadcrumb{ font-size:12.5px; color:var(--text-dim); margin-bottom:14px; }
-  @media (max-width: 760px){
-    .rules-browser{ flex-direction:column; }
-    .rules-sidebar{ width:100%; position:static; }
+  .rules-cat-btn:hover{ border-color:var(--stone-dim); color:var(--stone); }
+  .rules-cat-btn.active{ background:var(--stone); color:#161616; border-color:var(--stone); }
+  .rules-breadcrumb{ font-size:12px; color:var(--text-dim); margin:2px 0 18px; }
+  .rule-num{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0;
+    font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--stone);
+    background:rgba(255,255,255,0.06); border:1px solid var(--line); border-radius:6px; margin-left:10px;
   }
 
   .toolbar{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:22px 0 28px;}
@@ -478,16 +475,13 @@
         </div>
       </div>
 
-      <div class="rules-browser fade-in" style="animation-delay:0.2s">
-        <aside class="rules-sidebar">
-          <input type="text" id="rules-search" class="search-input" style="width:100%; margin-bottom:14px;" placeholder="ابحث عن قانون...">
-          <div class="section-label" style="margin-bottom:10px;">التصنيفات</div>
-          <div id="rules-categories"></div>
-        </aside>
-        <div class="rules-main">
-          <div class="rules-breadcrumb" id="rules-breadcrumb">القوانين</div>
-          <div class="tasks-list" id="rules-list"></div>
+      <div class="fade-in" style="animation-delay:0.2s">
+        <div class="rules-toolbar">
+          <div class="rules-cats" id="rules-categories"></div>
+          <input type="text" id="rules-search" class="search-input" style="min-width:200px;" placeholder="ابحث عن قانون...">
         </div>
+        <div class="rules-breadcrumb" id="rules-breadcrumb">القوانين</div>
+        <div class="tasks-list" id="rules-list"></div>
       </div>
 
     </div>
