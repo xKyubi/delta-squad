@@ -930,7 +930,7 @@ function renderPodium(data, unit){
       <div class="pod-slot ${cls}">
         <div class="pod-avatar"${avatarStyle(o.photo)}>${o.photo ? '' : initials(o.name)}${medalSVG(medalColor)}</div>
         <p class="pod-name">${o.name}</p>
-        <p class="pod-value">${unit==='h' ? o.value.toFixed(1)+'h' : o.value.toLocaleString()+' pt'}</p>
+        <p class="pod-value">${unit==='h' ? o.value.toFixed(1)+'h' : o.value.toLocaleString()+' pts'}</p>
         <div class="pod-bar"><span class="pod-rank">${cls==='first'?1:cls==='second'?2:3}</span></div>
       </div>`;
   }).join('');
@@ -952,7 +952,7 @@ function renderBoard(data, unit){
           <div class="name">${o.name}</div>
         </div>
       </div>
-      <div class="val">${unit==='h' ? o.value.toFixed(1)+'h' : o.value.toLocaleString()+' pt'}</div>
+      <div class="val">${unit==='h' ? o.value.toFixed(1)+'h' : o.value.toLocaleString()+' pts'}</div>
       <div class="bar-wrap"><div class="bar-fill" style="width:0%"></div></div>
     `;
     boardEl.appendChild(row);
