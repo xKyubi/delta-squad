@@ -453,8 +453,11 @@ window.addEventListener('popstate', () => {
 /* افتح على القسم اللي في الرابط عند تحميل الصفحة لأول مرة */
 showSection((location.hash || '#board').slice(1), false);
 
-/* ---------- shared roster ---------- */
-const membersData = [
+/* ---------- shared roster (loaded live from Google Sheet) ---------- */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/10gHDqDGEUs87pMtTw0BMKKyvCSHzmXbpcCGfhhiNV2c/export?format=csv&gid=430321705";
+
+/* نسخة احتياطية (بياناتك الحالية) تُستخدم فقط لو تعذّر الوصول للشيت */
+const FALLBACK_MEMBERS = [
   {name:"Muqrin Fahad", nick:"Abdulaziz", rank:"Leader", status:"online", hours:50, points:50},
   {name:"abadi Abdullah", nick:"rchx", rank:"Co-Leader", status:"online", hours:25, points:25},
   {name:"Nawaf Almutiri", nick:"Nawaf", rank:"Co-Leader", status:"online", hours:5, points:5},
@@ -484,9 +487,59 @@ const MEMBER_PHOTOS = {
   "Mezar AlHashmi": "assets/members/mezar.jpg"
 };
 
-function initials(name){ return name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''); }
+function initials(name){ return (name||'').trim().split(' ').map(w=>w[0]).slice(0,2).join(''); }
 
-function getRoster(){
+/* محلل CSV بسيط يدعم الفواصل والحقول المقتبسة "..." */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i], next = text[i+1];
+    if(inQuotes){
+      if(c === '"' && next === '"'){ field += '"'; i++; }
+      else if(c === '"'){ inQuotes = false; }
+      else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c === '\r'){ /* تجاهل */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function sheetRowsToMembers(rows){
+  if(!rows.length) return [];
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const idx = {
+    name: header.indexOf('name'),
+    nick: header.indexOf('nick'),
+    rank: header.indexOf('rank'),
+    status: header.indexOf('status'),
+    hours: header.indexOf('hours'),
+    points: header.indexOf('points'),
+  };
+  const out = [];
+  for(let i=1;i<rows.length;i++){
+    const r = rows[i];
+    const name = idx.name > -1 ? (r[idx.name]||'').trim() : '';
+    if(!name) continue; /* تجاهل الصفوف الفاضية */
+    out.push({
+      name,
+      nick: idx.nick > -1 ? (r[idx.nick]||'').trim() : '',
+      rank: idx.rank > -1 ? (r[idx.rank]||'').trim() || 'Member' : 'Member',
+      status: idx.status > -1 ? ((r[idx.status]||'').trim().toLowerCase() === 'offline' ? 'offline' : 'online') : 'online',
+      hours: idx.hours > -1 ? (parseFloat(r[idx.hours]) || 0) : 0,
+      points: idx.points > -1 ? (parseFloat(r[idx.points]) || 0) : 0,
+    });
+  }
+  return out;
+}
+
+function getRoster(membersData){
   return membersData.map((m,i)=>{
     return {
       idx: i,
@@ -501,17 +554,13 @@ function getRoster(){
   });
 }
 
-/* ---------- leaderboard (linked to members) ---------- */
-const roster = getRoster();
-const dataHours = roster.filter(r=>r.hours > 0).map(r=>({idx:r.idx, name:r.name, photo:r.photo, value:r.hours}))
-  .sort((a,b)=>b.value-a.value);
-const dataPoints = roster.filter(r=>r.points > 0).map(r=>({idx:r.idx, name:r.name, photo:r.photo, value:r.points}))
-  .sort((a,b)=>b.value-a.value);
 const medalSVG = c => `<svg class="pod-medal" viewBox="0 0 24 24" fill="${c}"><polygon points="12,1 15,9 23,9.5 17,15 19,23 12,18.5 5,23 7,15 1,9.5 9,9"/></svg>`;
 const podiumEl = document.getElementById('podium');
 const boardEl = document.getElementById('board');
 const btnHours = document.getElementById('btn-hours');
 const btnPoints = document.getElementById('btn-points');
+const membersGrid = document.getElementById('members-grid');
+const memberSearch = document.getElementById('member-search');
 
 function avatarStyle(photo){
   return photo ? ` style="background-image:url('${photo}');background-size:cover;background-position:center;"` : '';
@@ -581,27 +630,6 @@ function renderChallenge(){
   });
 }
 
-function show(data, unit){
-  renderPodium(data, unit);
-  renderBoard(data, unit);
-}
-
-btnHours.addEventListener('click', ()=>{
-  btnHours.classList.add('active'); btnPoints.classList.remove('active');
-  show(dataHours, 'h');
-});
-btnPoints.addEventListener('click', ()=>{
-  btnPoints.classList.add('active'); btnHours.classList.remove('active');
-  show(dataPoints, 'pt');
-});
-
-show(dataHours, 'h');
-renderChallenge();
-
-/* ---------- members (linked to leaderboard roster) ---------- */
-const membersGrid = document.getElementById('members-grid');
-const memberSearch = document.getElementById('member-search');
-
 function renderMembers(list){
   membersGrid.innerHTML = '';
   if(!list.length){
@@ -627,12 +655,39 @@ function renderMembers(list){
   });
 }
 
-memberSearch.addEventListener('input', ()=>{
-  const q = memberSearch.value.trim().toLowerCase();
-  renderMembers(getRoster().filter(m => m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q)));
-});
+/* ---------- تحميل البيانات وربط كل شي ---------- */
+let currentRoster = [];
 
-renderMembers(getRoster());
+function initFromMembers(membersData){
+  currentRoster = getRoster(membersData);
+  const dataHours = currentRoster.filter(r=>r.hours > 0).map(r=>({idx:r.idx, name:r.name, photo:r.photo, value:r.hours})).sort((a,b)=>b.value-a.value);
+  const dataPoints = currentRoster.filter(r=>r.points > 0).map(r=>({idx:r.idx, name:r.name, photo:r.photo, value:r.points})).sort((a,b)=>b.value-a.value);
+
+  function show(data, unit){ renderPodium(data, unit); renderBoard(data, unit); }
+
+  btnHours.onclick = ()=>{ btnHours.classList.add('active'); btnPoints.classList.remove('active'); show(dataHours, 'h'); };
+  btnPoints.onclick = ()=>{ btnPoints.classList.add('active'); btnHours.classList.remove('active'); show(dataPoints, 'pt'); };
+
+  show(dataHours, 'h');
+  renderChallenge();
+  renderMembers(currentRoster);
+
+  memberSearch.oninput = ()=>{
+    const q = memberSearch.value.trim().toLowerCase();
+    renderMembers(currentRoster.filter(m => m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q)));
+  };
+}
+
+fetch(SHEET_CSV_URL)
+  .then(res => { if(!res.ok) throw new Error('sheet fetch failed'); return res.text(); })
+  .then(text => {
+    const rows = parseCSV(text);
+    const members = sheetRowsToMembers(rows);
+    initFromMembers(members.length ? members : FALLBACK_MEMBERS);
+  })
+  .catch(() => {
+    initFromMembers(FALLBACK_MEMBERS);
+  });
 
 /* ---------- tasks (new) ---------- */
 const tasksData = [
