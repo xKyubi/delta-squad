@@ -322,6 +322,7 @@
       <a class="active" data-section="board" href="#board">لوحة المتصدرين</a>
       <a data-section="members" href="#members">الأعضاء</a>
       <a data-section="tasks" href="#tasks">المهام</a>
+      <a data-section="rules" href="#rules">القوانين</a>
     </div>
   </nav>
 
@@ -405,6 +406,19 @@
     </div>
   </section>
 
+  <!-- ===== القوانين ===== -->
+  <section class="page" id="sec-rules">
+    <div class="page-hero fade-in">
+      <h1>القوانين</h1>
+      <div class="brand-underline"><span></span><em>RULES</em><span></span></div>
+      <p>قوانين وأنظمة الفريق الرسمية.</p>
+    </div>
+    <div class="content">
+      <div class="section-label fade-in" style="animation-delay:0.1s">القوانين <span class="line"></span></div>
+      <div class="tasks-list" id="rules-list"></div>
+    </div>
+  </section>
+
   <footer class="footer">
     <span>DELTA SQUAD © 2026</span>
   </footer>
@@ -416,7 +430,7 @@ document.querySelectorAll('.logo-img').forEach(img => img.src = LOGO_DATA);
 /* ---------- navigation (with real URL hash routing) ---------- */
 const navLinks = document.querySelectorAll('.nav-links a');
 const pages = document.querySelectorAll('.page');
-const validSections = ['board','members','tasks'];
+const validSections = ['board','members','tasks','rules'];
 
 function showSection(target, updateHash){
   if(!validSections.includes(target)) target = 'board';
@@ -443,6 +457,7 @@ showSection((location.hash || '#board').slice(1), false);
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=430321705&single=true&output=csv";
 const CHALLENGE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=1643908210&single=true&output=csv";
 const TASKS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=352351439&single=true&output=csv";
+const RULES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=832726776&single=true&output=csv";
 
 const MEMBER_PHOTOS = {
   "Nick Reyes": "assets/members/kyubi.jpg",
@@ -549,6 +564,25 @@ function sheetRowsToTasks(rows){
       status: validStatus.includes(rawStatus) ? rawStatus : 'pending',
       progress: idx.progress > -1 ? Math.max(0, Math.min(100, parseFloat(r[idx.progress]) || 0)) : 0,
       due: idx.due > -1 ? (r[idx.due]||'').trim() : '',
+    });
+  }
+  return out;
+}
+
+function sheetRowsToRules(rows){
+  if(!rows.length) return [];
+  let headerRowIdx = rows.findIndex(r => r.some(cell => cell.trim().toLowerCase() === 'title'));
+  if(headerRowIdx === -1) return [];
+  const header = rows[headerRowIdx].map(h => h.trim().toLowerCase());
+  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc') };
+  const out = [];
+  for(let i=headerRowIdx+1;i<rows.length;i++){
+    const r = rows[i];
+    const title = idx.title > -1 ? (r[idx.title]||'').trim() : '';
+    if(!title) continue;
+    out.push({
+      title,
+      desc: idx.desc > -1 ? (r[idx.desc]||'').trim() : '',
     });
   }
   return out;
@@ -784,6 +818,39 @@ fetch(TASKS_CSV_URL)
   })
   .catch(() => {
     tasksList.innerHTML = '<div class="empty-state">تعذّر تحميل المهام من الشيت.</div>';
+  });
+
+/* ---------- القوانين (من الشيت) ---------- */
+const rulesList = document.getElementById('rules-list');
+
+function renderRules(list){
+  rulesList.innerHTML = '';
+  if(!list.length){
+    rulesList.innerHTML = '<div class="empty-state">لا توجد قوانين مضافة</div>';
+    return;
+  }
+  list.forEach((r,i)=>{
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.style.animationDelay = (i*0.06) + 's';
+    card.innerHTML = `
+      <div class="task-top">
+        <h3 class="task-title">${r.title}</h3>
+      </div>
+      <p class="task-desc">${r.desc}</p>
+    `;
+    rulesList.appendChild(card);
+  });
+}
+
+fetch(RULES_CSV_URL)
+  .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+  .then(text => {
+    const rows = parseCSV(text);
+    renderRules(sheetRowsToRules(rows));
+  })
+  .catch(() => {
+    rulesList.innerHTML = '<div class="empty-state">تعذّر تحميل القوانين من الشيت.</div>';
   });
 </script>
 </body>
