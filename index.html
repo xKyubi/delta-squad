@@ -702,11 +702,11 @@ function initFromMembers(membersData){
   btnPoints.onclick = ()=>{ btnPoints.classList.add('active'); btnHours.classList.remove('active'); show(dataPoints, 'pt'); };
 
   show(dataHours, 'h');
-  renderMembers(currentRoster);
+  renderMembers(currentRoster.filter(m => m.status === 'online'));
 
   memberSearch.oninput = ()=>{
     const q = memberSearch.value.trim().toLowerCase();
-    renderMembers(currentRoster.filter(m => m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q)));
+    renderMembers(currentRoster.filter(m => m.status === 'online' && (m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q))));
   };
 }
 
