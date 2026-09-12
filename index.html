@@ -706,7 +706,11 @@ function initFromMembers(membersData){
 
   memberSearch.oninput = ()=>{
     const q = memberSearch.value.trim().toLowerCase();
-    renderMembers(currentRoster.filter(m => m.status === 'online' && (m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q))));
+    if(!q){
+      renderMembers(currentRoster.filter(m => m.status === 'online'));
+    } else {
+      renderMembers(currentRoster.filter(m => m.name.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q)));
+    }
   };
 }
 
