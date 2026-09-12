@@ -364,21 +364,7 @@
       <div class="board" id="board"></div>
 
       <div class="section-label fade-in" style="animation-delay:0.6s">تحدي الأسبوع <span class="line"></span></div>
-      <div class="challenge fade-in" style="animation-delay:0.65s">
-        <div class="challenge-top">
-          <span class="challenge-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 10l-5 4.5L17.5 21 12 17.5 6.5 21 8 14.5 3 10l6.5-1.5z"/></svg>
-            تحدي نشط
-          </span>
-          <span class="challenge-days">متبقي 3 أيام</span>
-        </div>
-        <h3>30 ساعات مطلوبه</h3>
-        <p>30 ساعات مطلوبه</p>
-        <div class="challenge-progress">
-          <div class="challenge-bar-wrap"><div class="challenge-bar-fill" id="challenge-fill" style="width:0%"></div></div>
-          <span class="challenge-pct" id="challenge-pct">0%</span>
-        </div>
-      </div>
+      <div id="challenge-list" style="display:flex; flex-direction:column; gap:16px; margin-bottom:20px;"></div>
       <div class="wings-divider fade-in" style="animation-delay:0.7s">
         <svg viewBox="0 0 110 34" xmlns="http://www.w3.org/2000/svg">
           <polygon points="55,2 60,16 55,30 50,16" fill="var(--stone)"/>
@@ -455,6 +441,8 @@ showSection((location.hash || '#board').slice(1), false);
 
 /* ---------- shared roster (loaded live from Google Sheet) ---------- */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=430321705&single=true&output=csv";
+const CHALLENGE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=1643908210&single=true&output=csv";
+const TASKS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUQsSt8Ge39wV1fPAssaQpSYqjju7sw_B9u-VMMIbIXq2daS-dvBY9DzwFQKSSs-BI5vJeM41Fl9p2/pub?gid=352351439&single=true&output=csv";
 
 const MEMBER_PHOTOS = {
   "Nick Reyes": "assets/members/kyubi.jpg",
@@ -521,6 +509,51 @@ function sheetRowsToMembers(rows){
   return out;
 }
 
+function sheetRowsToChallenges(rows){
+  if(!rows.length) return [];
+  let headerRowIdx = rows.findIndex(r => r.some(cell => cell.trim().toLowerCase() === 'title'));
+  if(headerRowIdx === -1) return [];
+  const header = rows[headerRowIdx].map(h => h.trim().toLowerCase());
+  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc'), target: header.indexOf('target'), days_left: header.indexOf('days_left') };
+  const out = [];
+  for(let i=headerRowIdx+1;i<rows.length;i++){
+    const r = rows[i];
+    const title = idx.title > -1 ? (r[idx.title]||'').trim() : '';
+    if(!title) continue;
+    out.push({
+      title,
+      desc: idx.desc > -1 ? (r[idx.desc]||'').trim() : '',
+      target: idx.target > -1 ? Math.max(0, Math.min(100, parseFloat(r[idx.target]) || 0)) : 0,
+      daysLeft: idx.days_left > -1 ? (r[idx.days_left]||'').trim() : '',
+    });
+  }
+  return out;
+}
+
+function sheetRowsToTasks(rows){
+  if(!rows.length) return [];
+  let headerRowIdx = rows.findIndex(r => r.some(cell => cell.trim().toLowerCase() === 'title'));
+  if(headerRowIdx === -1) return [];
+  const header = rows[headerRowIdx].map(h => h.trim().toLowerCase());
+  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc'), status: header.indexOf('status'), progress: header.indexOf('progress'), due: header.indexOf('due') };
+  const validStatus = ['pending','progress','done'];
+  const out = [];
+  for(let i=headerRowIdx+1;i<rows.length;i++){
+    const r = rows[i];
+    const title = idx.title > -1 ? (r[idx.title]||'').trim() : '';
+    if(!title) continue;
+    const rawStatus = idx.status > -1 ? (r[idx.status]||'').trim().toLowerCase() : 'pending';
+    out.push({
+      title,
+      desc: idx.desc > -1 ? (r[idx.desc]||'').trim() : '',
+      status: validStatus.includes(rawStatus) ? rawStatus : 'pending',
+      progress: idx.progress > -1 ? Math.max(0, Math.min(100, parseFloat(r[idx.progress]) || 0)) : 0,
+      due: idx.due > -1 ? (r[idx.due]||'').trim() : '',
+    });
+  }
+  return out;
+}
+
 function getRoster(membersData){
   return membersData.map((m,i)=>{
     return {
@@ -543,6 +576,7 @@ const btnHours = document.getElementById('btn-hours');
 const btnPoints = document.getElementById('btn-points');
 const membersGrid = document.getElementById('members-grid');
 const memberSearch = document.getElementById('member-search');
+const challengeListEl = document.getElementById('challenge-list');
 
 function avatarStyle(photo){
   return photo ? ` style="background-image:url('${photo}');background-size:cover;background-position:center;"` : '';
@@ -591,15 +625,32 @@ function renderBoard(data, unit){
   });
 }
 
-function renderChallenge(){
-  const challenges = [
-    {fillId:'challenge-fill', pctId:'challenge-pct', target:74},
-    {fillId:'challenge-fill-2', pctId:'challenge-pct-2', target:55},
-    {fillId:'challenge-fill-3', pctId:'challenge-pct-3', target:40},
-  ];
-  challenges.forEach(c=>{
-    const fill = document.getElementById(c.fillId);
-    const pct = document.getElementById(c.pctId);
+function renderChallenge(challenges){
+  if(!challenges.length){
+    challengeListEl.innerHTML = '<div class="empty-state">لا يوجد تحدي نشط حالياً</div>';
+    return;
+  }
+  challengeListEl.innerHTML = challenges.map((c,i) => `
+    <div class="challenge fade-in" style="animation-delay:${0.65 + i*0.05}s">
+      <div class="challenge-top">
+        <span class="challenge-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 10l-5 4.5L17.5 21 12 17.5 6.5 21 8 14.5 3 10l6.5-1.5z"/></svg>
+          تحدي نشط
+        </span>
+        ${c.daysLeft ? `<span class="challenge-days">متبقي ${c.daysLeft}</span>` : ''}
+      </div>
+      <h3>${c.title}</h3>
+      <p>${c.desc}</p>
+      <div class="challenge-progress">
+        <div class="challenge-bar-wrap"><div class="challenge-bar-fill" id="challenge-fill-${i}" style="width:0%"></div></div>
+        <span class="challenge-pct" id="challenge-pct-${i}">0%</span>
+      </div>
+    </div>
+  `).join('');
+
+  challenges.forEach((c,i)=>{
+    const fill = document.getElementById('challenge-fill-'+i);
+    const pct = document.getElementById('challenge-pct-'+i);
     if(!fill || !pct) return;
     setTimeout(()=>{
       fill.style.width = c.target + '%';
@@ -651,7 +702,6 @@ function initFromMembers(membersData){
   btnPoints.onclick = ()=>{ btnPoints.classList.add('active'); btnHours.classList.remove('active'); show(dataPoints, 'pt'); };
 
   show(dataHours, 'h');
-  renderChallenge();
   renderMembers(currentRoster);
 
   memberSearch.oninput = ()=>{
@@ -682,18 +732,22 @@ function showSheetError(detail){
   membersGrid.innerHTML = msg;
 }
 
-/* ---------- tasks (new) ---------- */
-const tasksData = [
-  {title:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", desc:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", status:"pending", progress:0, due:"5d"},
-  {title:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", desc:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", status:"progress", progress:50, due:"7d"},
-  {title:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", desc:"إستلام مسؤولية حالة سرقة وإنهاءها بشكل إحترافي والقبض على جميع المتسببين فيها", status:"done", progress:100, due:"30d"},
-];
+/* ---------- تحدي الأسبوع (من الشيت) ---------- */
+fetch(CHALLENGE_CSV_URL)
+  .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+  .then(text => {
+    const rows = parseCSV(text);
+    renderChallenge(sheetRowsToChallenges(rows));
+  })
+  .catch(() => {
+    challengeListEl.innerHTML = '<div class="empty-state">تعذّر تحميل التحدي من الشيت.</div>';
+  });
 
+/* ---------- المهام (من الشيت) ---------- */
 const tasksList = document.getElementById('tasks-list');
 const statusLabel = {pending:'قيد الانتظار', progress:'قيد التنفيذ', done:'مكتملة'};
 
-function renderTasks(){
-  const list = tasksData;
+function renderTasks(list){
   tasksList.innerHTML = '';
   if(!list.length){
     tasksList.innerHTML = '<div class="empty-state">لا توجد مهام في هذا القسم</div>';
@@ -718,7 +772,15 @@ function renderTasks(){
   });
 }
 
-renderTasks();
+fetch(TASKS_CSV_URL)
+  .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+  .then(text => {
+    const rows = parseCSV(text);
+    renderTasks(sheetRowsToTasks(rows));
+  })
+  .catch(() => {
+    tasksList.innerHTML = '<div class="empty-state">تعذّر تحميل المهام من الشيت.</div>';
+  });
 </script>
 </body>
 </html>
