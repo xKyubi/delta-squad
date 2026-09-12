@@ -312,24 +312,26 @@
     display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
     opacity:0; animation: fadeUp 0.5s ease forwards;
   }
-  .hex-glow{ position:relative; width:96px; height:96px; }
+  .hex-glow{ position:relative; width:150px; height:150px; }
   .hex-glow::before{
-    content:""; position:absolute; inset:-14px; border-radius:50%;
-    background: radial-gradient(circle, rgba(179,49,42,0.35), transparent 70%);
-    transition: opacity .25s ease; opacity:0.6;
+    content:""; position:absolute; inset:-22px; border-radius:50%;
+    background: radial-gradient(circle, rgba(179,49,42,0.45), transparent 70%);
+    transition: opacity .25s ease; opacity:0.7;
+    animation: hexPulse 2.6s ease-in-out infinite;
   }
-  .hier-node:hover .hex-glow::before{ opacity:1; }
+  @keyframes hexPulse{ 0%,100%{ opacity:0.55; transform:scale(1); } 50%{ opacity:0.95; transform:scale(1.08); } }
+  .hier-node:hover .hex-glow::before{ opacity:1; animation-duration:1.2s; }
   .hex-avatar{
-    position:relative; width:96px; height:96px;
+    position:relative; width:150px; height:150px;
     clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
     background:#1c1d20 center/cover no-repeat; border:1px solid var(--line);
     display:flex; align-items:center; justify-content:center;
-    font-family:'Oswald',sans-serif; font-weight:700; font-size:22px; color:var(--stone);
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:34px; color:var(--stone);
     transition: transform .2s ease;
   }
   .hier-node:hover .hex-avatar{ transform:scale(1.06); }
-  .hier-name{ font-size:13.5px; font-weight:700; color:#f2ecd9; }
-  .hier-rank{ font-family:'Oswald',sans-serif; font-size:10.5px; letter-spacing:1.5px; color:var(--warn); text-transform:uppercase; }
+  .hier-name{ font-size:15px; font-weight:700; color:#f2ecd9; }
+  .hier-rank{ font-family:'Oswald',sans-serif; font-size:11.5px; letter-spacing:1.5px; color:var(--warn); text-transform:uppercase; }
 
   .toolbar{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:22px 0 28px;}
   .search-input{
