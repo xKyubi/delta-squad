@@ -659,22 +659,22 @@ function initFromMembers(membersData){
 }
 
 fetch(SHEET_CSV_URL)
-  .then(res => { if(!res.ok) throw new Error('sheet fetch failed'); return res.text(); })
+  .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
   .then(text => {
     const rows = parseCSV(text);
     const members = sheetRowsToMembers(rows);
     if(members.length){
       initFromMembers(members);
     } else {
-      showSheetError();
+      showSheetError('الشيت اترجع فاضي (0 أعضاء) — تأكد فيه بيانات صحيحة تحت صف العناوين.');
     }
   })
-  .catch(() => {
-    showSheetError();
+  .catch((err) => {
+    showSheetError(err && err.message ? err.message : String(err));
   });
 
-function showSheetError(){
-  const msg = '<div class="empty-state">تعذّر تحميل البيانات من الشيت — تأكد إن مشاركته "Anyone with the link can view" وإن فيه بيانات في الورقة الصحيحة.</div>';
+function showSheetError(detail){
+  const msg = '<div class="empty-state">تعذّر تحميل البيانات من الشيت.<br><span style="opacity:0.7;font-size:11px;direction:ltr;display:inline-block;margin-top:6px;">' + (detail||'') + '</span></div>';
   podiumEl.innerHTML = msg;
   boardEl.innerHTML = '';
   membersGrid.innerHTML = msg;
