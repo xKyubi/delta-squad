@@ -219,6 +219,48 @@
   .page-hero p{ color:var(--text-dim); font-size:14px; max-width:460px; margin:0 auto; line-height:1.6;}
 
   #sec-members .content{ max-width:1300px; }
+  #sec-rules .content{ max-width:1200px; }
+
+  .overview-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:36px; }
+  .overview-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px;
+    text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .overview-card:hover{ transform:translateY(-3px); border-color:var(--stone-dim); }
+  .overview-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ok);
+    background:rgba(111,174,111,0.12); border:1px solid rgba(111,174,111,0.35); padding:4px 12px; border-radius:20px; margin-bottom:8px;
+  }
+  .overview-badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--ok); animation: livePulse 2s ease-out infinite; }
+  .overview-icon{ font-size:28px; margin-bottom:4px; }
+  .overview-card h3{ font-size:15.5px; font-weight:700; margin:0 0 4px; }
+  .overview-card p{ font-size:13px; color:var(--text-dim); line-height:1.6; margin:0 0 12px; }
+  .overview-btn{
+    font-family:'Tajawal',sans-serif; font-size:12.5px; font-weight:700; color:var(--stone);
+    background:transparent; border:1px solid var(--line); padding:8px 18px; border-radius:var(--radius-sm);
+    cursor:pointer; transition: border-color .2s ease, background .2s ease;
+  }
+  .overview-btn:hover{ border-color:var(--stone-dim); background:rgba(255,255,255,0.04); }
+
+  .rules-browser{ display:flex; gap:22px; align-items:flex-start; }
+  .rules-sidebar{
+    width:220px; flex-shrink:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:16px; position:sticky; top:90px;
+  }
+  .rules-cat-btn{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:right; font-family:'Tajawal',sans-serif;
+    font-size:13px; color:var(--text-dim); background:transparent; border:none; padding:9px 10px; border-radius:var(--radius-sm);
+    cursor:pointer; transition: background .15s ease, color .15s ease; margin-bottom:2px;
+  }
+  .rules-cat-btn:hover{ background:rgba(255,255,255,0.04); color:var(--stone); }
+  .rules-cat-btn.active{ background:var(--stone); color:#161616; font-weight:700; }
+  .rules-main{ flex:1; min-width:0; }
+  .rules-breadcrumb{ font-size:12.5px; color:var(--text-dim); margin-bottom:14px; }
+  @media (max-width: 760px){
+    .rules-browser{ flex-direction:column; }
+    .rules-sidebar{ width:100%; position:static; }
+  }
 
   .toolbar{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:22px 0 28px;}
   .search-input{
@@ -414,8 +456,40 @@
       <p>قوانين وأنظمة الفريق الرسمية.</p>
     </div>
     <div class="content">
-      <div class="section-label fade-in" style="animation-delay:0.1s">القوانين <span class="line"></span></div>
-      <div class="tasks-list" id="rules-list"></div>
+
+      <div class="overview-grid fade-in" style="animation-delay:0.1s">
+        <div class="overview-card">
+          <span class="overview-badge"><span class="dot"></span> موعد مؤكّد</span>
+          <div class="overview-icon">📅</div>
+          <h3>موعد المقابلة</h3>
+          <p>الخميس 9 مساءً — روم المقابلات</p>
+        </div>
+        <div class="overview-card">
+          <div class="overview-icon">🏛️</div>
+          <h3>هرم الأكاديمية</h3>
+          <p>التسلسل القيادي المسؤول عن إدارة الأكاديمية وتدريبك.</p>
+          <button class="overview-btn" type="button">عرض الهرم الكامل</button>
+        </div>
+        <div class="overview-card">
+          <div class="overview-icon">🎯</div>
+          <h3>نظام التدريب</h3>
+          <p>شرح كامل لمراحل التدريب من التوجيه الأساسي وصولاً لتقييم التخرج.</p>
+          <button class="overview-btn" type="button">عرض النظام</button>
+        </div>
+      </div>
+
+      <div class="rules-browser fade-in" style="animation-delay:0.2s">
+        <aside class="rules-sidebar">
+          <input type="text" id="rules-search" class="search-input" style="width:100%; margin-bottom:14px;" placeholder="ابحث عن قانون...">
+          <div class="section-label" style="margin-bottom:10px;">التصنيفات</div>
+          <div id="rules-categories"></div>
+        </aside>
+        <div class="rules-main">
+          <div class="rules-breadcrumb" id="rules-breadcrumb">القوانين</div>
+          <div class="tasks-list" id="rules-list"></div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -574,7 +648,7 @@ function sheetRowsToRules(rows){
   let headerRowIdx = rows.findIndex(r => r.some(cell => cell.trim().toLowerCase() === 'title'));
   if(headerRowIdx === -1) return [];
   const header = rows[headerRowIdx].map(h => h.trim().toLowerCase());
-  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc') };
+  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc'), category: header.indexOf('category') };
   const out = [];
   for(let i=headerRowIdx+1;i<rows.length;i++){
     const r = rows[i];
@@ -583,6 +657,7 @@ function sheetRowsToRules(rows){
     out.push({
       title,
       desc: idx.desc > -1 ? (r[idx.desc]||'').trim() : '',
+      category: (idx.category > -1 ? (r[idx.category]||'').trim() : '') || 'عامة',
     });
   }
   return out;
@@ -822,17 +897,22 @@ fetch(TASKS_CSV_URL)
 
 /* ---------- القوانين (من الشيت) ---------- */
 const rulesList = document.getElementById('rules-list');
+const rulesCategoriesEl = document.getElementById('rules-categories');
+const rulesBreadcrumbEl = document.getElementById('rules-breadcrumb');
+const rulesSearchEl = document.getElementById('rules-search');
+let allRules = [];
+let activeCategory = 'الكل';
 
-function renderRules(list){
+function renderRuleCards(list){
   rulesList.innerHTML = '';
   if(!list.length){
-    rulesList.innerHTML = '<div class="empty-state">لا توجد قوانين مضافة</div>';
+    rulesList.innerHTML = '<div class="empty-state">لا توجد قوانين مطابقة</div>';
     return;
   }
   list.forEach((r,i)=>{
     const card = document.createElement('div');
     card.className = 'task-card rule-card';
-    card.style.animationDelay = (i*0.06) + 's';
+    card.style.animationDelay = (i*0.05) + 's';
     card.innerHTML = `
       <div class="task-top rule-header" style="cursor:pointer; margin-bottom:0;">
         <h3 class="task-title">${r.title}</h3>
@@ -854,6 +934,36 @@ function renderRules(list){
     rulesList.appendChild(card);
   });
 }
+
+function applyRulesFilter(){
+  const q = rulesSearchEl.value.trim().toLowerCase();
+  let list = allRules;
+  if(activeCategory !== 'الكل') list = list.filter(r => r.category === activeCategory);
+  if(q) list = list.filter(r => r.title.toLowerCase().includes(q));
+  rulesBreadcrumbEl.textContent = 'القوانين / ' + activeCategory;
+  renderRuleCards(list);
+}
+
+function renderRulesCategories(){
+  const categories = ['الكل', ...Array.from(new Set(allRules.map(r=>r.category)))];
+  rulesCategoriesEl.innerHTML = categories.map(cat => `<button type="button" class="rules-cat-btn${cat===activeCategory?' active':''}" data-cat="${cat}">${cat}</button>`).join('');
+  rulesCategoriesEl.querySelectorAll('.rules-cat-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeCategory = btn.dataset.cat;
+      rulesCategoriesEl.querySelectorAll('.rules-cat-btn').forEach(b=>b.classList.toggle('active', b===btn));
+      applyRulesFilter();
+    });
+  });
+}
+
+function renderRules(list){
+  allRules = list;
+  activeCategory = 'الكل';
+  renderRulesCategories();
+  applyRulesFilter();
+}
+
+rulesSearchEl.addEventListener('input', applyRulesFilter);
 
 fetch(RULES_CSV_URL)
   .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
