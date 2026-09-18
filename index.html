@@ -975,7 +975,7 @@ function renderChallenge(challenges){
         </span>
         <div style="display:flex; align-items:center; gap:10px;">
           ${c.points ? `<span class="challenge-tag" style="color:var(--warn); border-color:var(--warn);">🏆 ${c.points.toLocaleString()} نقطة</span>` : ''}
-          ${c.daysLeft ? `<span class="challenge-days" id="challenge-countdown-${i}">متبقي ...</span>` : ''}
+          ${c.daysLeft ? `<span class="challenge-days" id="challenge-countdown-${i}">...</span>` : ''}
         </div>
       </div>
       <h3>${c.title}</h3>
@@ -1025,8 +1025,8 @@ function startChallengeCountdowns(challenges){
 
     const deadline = parseChallengeDeadline(c.daysLeft);
     if(!deadline){
-      /* مو تاريخ صالح؟ اعرض النص كما هو (توافق مع القيم القديمة مثل "3 أيام") */
-      el.textContent = 'متبقي ' + c.daysLeft;
+      /* مو تاريخ صالح؟ اعرض النص كما هو (توافق مع القيم القديمة) */
+      el.textContent = c.daysLeft;
       return;
     }
 
@@ -1043,9 +1043,9 @@ function startChallengeCountdowns(challenges){
       const secs = totalSec % 60;
 
       let text;
-      if(days > 0) text = `متبقي ${days} يوم ${hours} س`;
-      else if(hours > 0) text = `متبقي ${hours} س ${mins} د`;
-      else text = `متبقي ${mins} د ${secs} ث`;
+      if(days > 0) text = `${days} يوم ${hours} س`;
+      else if(hours > 0) text = `${hours} س ${mins} د`;
+      else text = `${mins} د ${secs} ث`;
       el.textContent = text;
     }
 
