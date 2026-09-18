@@ -1036,17 +1036,42 @@ function renderChallenge(challenges){
   });
 }
 
-/* عداد تنازلي حي — القيمة تُكتب في عمود days_left بالشيت كتاريخ/وقت الانتهاء
-   مثال صيغ مقبولة: 2025-09-25  أو  2025-09-25 15:00 */
+/* عداد تنازلي حي — القيمة تُكتب في عمود days_left بالشيت بإحدى صيغتين:
+   1) تاريخ/وقت نهاية ثابت (متزامن لكل من يفتح الصفحة):  2025-09-25  أو  2025-09-25 15:00
+   2) مدة تنازلية DD:HH:MM:SS (أو HH:MM:SS أو MM:SS):     7:0:0:0  =  7 أيام من أول لحظة يفتح فيها أي شخص الصفحة على جهازه،
+      وتبقى ثابتة على نفس الجهاز حتى لو حدّث الصفحة، وتتصفّر تلقائيًا فقط إذا غيّرت الرقم بالشيت */
 let _challengeCountdownTimers = [];
 function stopChallengeCountdowns(){
   _challengeCountdownTimers.forEach(id => clearInterval(id));
   _challengeCountdownTimers = [];
 }
 
-function parseChallengeDeadline(raw){
+function resolveChallengeDeadline(raw, keyHint){
   if(!raw) return null;
-  const s = raw.trim().replace(' ', 'T');
+  const trimmed = raw.trim();
+
+  /* صيغة المدة: أرقام مفصولة بنقطتين، من جزئين إلى أربعة أجزاء */
+  if(/^\d{1,3}(:\d{1,2}){1,3}$/.test(trimmed)){
+    const parts = trimmed.split(':').map(n => parseInt(n, 10));
+    let d = 0, h = 0, m = 0, s = 0;
+    if(parts.length === 4) [d, h, m, s] = parts;
+    else if(parts.length === 3) [h, m, s] = parts;
+    else [m, s] = parts;
+    const totalSeconds = (d * 86400) + (h * 3600) + (m * 60) + s;
+    if(totalSeconds <= 0) return null;
+
+    const storageKey = 'ds_challenge_deadline::' + keyHint + '::' + trimmed;
+    let target = null;
+    try { target = parseInt(localStorage.getItem(storageKey), 10); } catch(e){ target = null; }
+    if(!target || isNaN(target)){
+      target = Date.now() + totalSeconds * 1000;
+      try { localStorage.setItem(storageKey, String(target)); } catch(e){}
+    }
+    return new Date(target);
+  }
+
+  /* صيغة تاريخ/وقت مطلق */
+  const s = trimmed.replace(' ', 'T');
   const d = new Date(s.includes('T') ? s : s + 'T00:00:00');
   return isNaN(d.getTime()) ? null : d;
 }
@@ -1069,7 +1094,7 @@ function startChallengeCountdowns(challenges){
     const sBox = el.querySelector('[data-part="s"]');
     const dColon = el.querySelector('.led-colon-d');
 
-    const deadline = parseChallengeDeadline(c.daysLeft);
+    const deadline = resolveChallengeDeadline(c.daysLeft, (c.title || '') + '#' + i);
     if(!deadline){
       /* مو تاريخ صالح؟ اعرض النص كما هو (توافق مع القيم القديمة) */
       el.classList.add('plain');
