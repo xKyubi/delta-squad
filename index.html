@@ -202,48 +202,15 @@
   .challenge-tag svg{ width:12px; height:12px;}
   .challenge-days{ font-size:12px; color:var(--text-dim);}
 
-  /* عداد LED أحمر متوهج، تنازلي — بنفس حجم بادج قيد التنفيذ */
-  .challenge-status-wrap{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .led-countdown{
-    display:flex; align-items:center; gap:5px; direction:ltr; user-select:none;
-  }
-  .led-countdown.plain, .challenge-status-wrap.plain{
-    font-family:'Tajawal',sans-serif; font-size:12px; color:var(--text-dim); direction:rtl;
-  }
-  .led-box{
-    display:flex; gap:1px; background:#0c0505;
-    border:1px solid #2a0d0d; border-radius:var(--radius-badge); padding:3px 6px;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.85), 0 0 6px rgba(255,30,30,0.18);
-  }
-  .led-cell{ position:relative; display:inline-block; width:9px; text-align:center; }
-  .led-cell i{
-    position:absolute; inset:0; font-style:normal;
-    font-family:'Orbitron', monospace; font-weight:800; font-size:10px; line-height:1.4;
-    color:rgba(255,40,40,0.10);
-  }
-  .led-cell b{
-    position:relative; display:block; font-family:'Orbitron', monospace; font-weight:800; font-size:10px; line-height:1.4;
-    color:#ff2b2b; text-shadow:0 0 2px #ff3030, 0 0 5px #ff2020;
-  }
-  .led-colon{
-    font-family:'Orbitron', monospace; font-weight:800; font-size:10px; color:#ff2b2b;
-    text-shadow:0 0 3px #ff3030, 0 0 6px #ff2020;
-    animation: ledBlink 1s steps(1,end) infinite;
-  }
-  @keyframes ledBlink{ 50%{ opacity:0.22; } }
-
-  /* بادج "قيد التنفيذ" و "انتهى التحدي" — نفس الشكل والحجم بالضبط (زي بادج المهام)، يختلفون باللون بس */
-  .challenge-progress-badge, .challenge-ended-badge{
+  /* بادج التحدي الموحّد: نفس شكل وحجم بادجات المهام بالضبط
+     — أثناء العد التنازلي يعرض الوقت المتبقي، وعند الانتهاء يعرض "انتهى التحدي" */
+  .challenge-countdown-badge{
     font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:1px; font-weight:700;
     padding:3px 10px; border-radius:var(--radius-badge); white-space:nowrap;
-    display:inline-block;
-  }
-  .challenge-progress-badge{
-    color:var(--warn); background:rgba(201,162,74,0.12); border:1px solid var(--warn);
-  }
-  .challenge-ended-badge{
+    display:inline-block; direction:ltr;
     color:#ff4d4d; background:rgba(255,45,45,0.12); border:1px solid #ff4d4d;
   }
+
   .challenge h3{ font-size:17px; font-weight:700; margin:0 0 6px;}
   .challenge p{ font-size:13.5px; color:var(--text-dim); margin:0 0 16px; line-height:1.6;}
   .challenge-progress{ display:flex; align-items:center; gap:10px;}
@@ -1018,15 +985,7 @@ function renderChallenge(challenges){
         </span>
         <div style="display:flex; align-items:center; gap:10px;">
           ${c.points ? `<span class="challenge-tag" style="color:var(--warn); border-color:var(--warn);">🏆 ${c.points.toLocaleString()} نقطة</span>` : ''}
-          ${c.daysLeft ? `<div class="challenge-status-wrap" id="challenge-countdown-${i}">
-            <span class="challenge-progress-badge" data-role="progress-badge">قيد التنفيذ</span>
-            <div class="led-countdown" data-role="clock">
-              <div class="led-box" data-part="d"></div><span class="led-colon led-colon-d">:</span>
-              <div class="led-box" data-part="h"></div><span class="led-colon">:</span>
-              <div class="led-box" data-part="m"></div><span class="led-colon">:</span>
-              <div class="led-box" data-part="s"></div>
-            </div>
-          </div>` : ''}
+          ${c.daysLeft ? `<span class="challenge-countdown-badge" id="challenge-countdown-${i}">--:--:--</span>` : ''}
         </div>
       </div>
       <h3>${c.title}</h3>
@@ -1106,10 +1065,6 @@ function resolveChallengeDeadline(raw, keyHint){
   return isNaN(d.getTime()) ? null : d;
 }
 
-function ledCells(numStr){
-  return numStr.split('').map(ch => `<span class="led-cell"><i>8</i><b>${ch}</b></span>`).join('');
-}
-
 function pad2(n){ return String(n).padStart(2,'0'); }
 
 function startChallengeCountdowns(challenges){
@@ -1118,24 +1073,15 @@ function startChallengeCountdowns(challenges){
     const el = document.getElementById('challenge-countdown-' + i);
     if(!el || !c.daysLeft) return;
 
-    const dBox = el.querySelector('[data-part="d"]');
-    const hBox = el.querySelector('[data-part="h"]');
-    const mBox = el.querySelector('[data-part="m"]');
-    const sBox = el.querySelector('[data-part="s"]');
-    const dColon = el.querySelector('.led-colon-d');
-
     const deadline = resolveChallengeDeadline(c.daysLeft, (c.title || '') + '#' + i);
     if(!deadline){
       /* مو تاريخ صالح؟ اعرض النص كما هو (توافق مع القيم القديمة) */
-      el.classList.add('plain');
-      el.innerHTML = '';
       el.textContent = c.daysLeft;
       return;
     }
 
     function ended(){
-      el.classList.remove('plain');
-      el.innerHTML = '<span class="challenge-ended-badge">انتهى التحدي</span>';
+      el.textContent = 'انتهى التحدي';
     }
 
     function tick(){
@@ -1148,13 +1094,9 @@ function startChallengeCountdowns(challenges){
       const mins = Math.floor((totalSec % 3600) / 60);
       const secs = totalSec % 60;
 
-      const showDays = days > 0;
-      if(dBox) dBox.style.display = showDays ? '' : 'none';
-      if(dColon) dColon.style.display = showDays ? '' : 'none';
-      if(dBox && showDays) dBox.innerHTML = ledCells(pad2(days));
-      if(hBox) hBox.innerHTML = ledCells(pad2(hours));
-      if(mBox) mBox.innerHTML = ledCells(pad2(mins));
-      if(sBox) sBox.innerHTML = ledCells(pad2(secs));
+      el.textContent = days > 0
+        ? `${pad2(days)}:${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`
+        : `${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
     }
 
     tick();
