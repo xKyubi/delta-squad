@@ -975,7 +975,7 @@ function renderChallenge(challenges){
         </span>
         <div style="display:flex; align-items:center; gap:10px;">
           ${c.points ? `<span class="challenge-tag" style="color:var(--warn); border-color:var(--warn);">🏆 ${c.points.toLocaleString()} نقطة</span>` : ''}
-          ${c.daysLeft ? `<span class="challenge-days">متبقي ${c.daysLeft}</span>` : ''}
+          ${c.daysLeft ? `<span class="challenge-days" id="challenge-countdown-${i}">متبقي ...</span>` : ''}
         </div>
       </div>
       <h3>${c.title}</h3>
@@ -999,6 +999,59 @@ function renderChallenge(challenges){
         if(cur >= c.target) clearInterval(t);
       }, 12);
     }, 400);
+  });
+}
+
+/* عداد تنازلي حي — القيمة تُكتب في عمود days_left بالشيت كتاريخ/وقت الانتهاء
+   مثال صيغ مقبولة: 2025-09-25  أو  2025-09-25 15:00 */
+let _challengeCountdownTimers = [];
+function stopChallengeCountdowns(){
+  _challengeCountdownTimers.forEach(id => clearInterval(id));
+  _challengeCountdownTimers = [];
+}
+
+function parseChallengeDeadline(raw){
+  if(!raw) return null;
+  const s = raw.trim().replace(' ', 'T');
+  const d = new Date(s.includes('T') ? s : s + 'T00:00:00');
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function startChallengeCountdowns(challenges){
+  stopChallengeCountdowns();
+  challenges.forEach((c, i) => {
+    const el = document.getElementById('challenge-countdown-' + i);
+    if(!el || !c.daysLeft) return;
+
+    const deadline = parseChallengeDeadline(c.daysLeft);
+    if(!deadline){
+      /* مو تاريخ صالح؟ اعرض النص كما هو (توافق مع القيم القديمة مثل "3 أيام") */
+      el.textContent = 'متبقي ' + c.daysLeft;
+      return;
+    }
+
+    function tick(){
+      const diff = deadline.getTime() - Date.now();
+      if(diff <= 0){
+        el.textContent = 'انتهى التحدي';
+        return;
+      }
+      const totalSec = Math.floor(diff / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+
+      let text;
+      if(days > 0) text = `متبقي ${days} يوم ${hours} س`;
+      else if(hours > 0) text = `متبقي ${hours} س ${mins} د`;
+      else text = `متبقي ${mins} د ${secs} ث`;
+      el.textContent = text;
+    }
+
+    tick();
+    const id = setInterval(tick, 1000);
+    _challengeCountdownTimers.push(id);
   });
 }
 
@@ -1080,7 +1133,9 @@ fetch(CHALLENGE_CSV_URL)
   .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
   .then(text => {
     const rows = parseCSV(text);
-    renderChallenge(sheetRowsToChallenges(rows));
+    const challenges = sheetRowsToChallenges(rows);
+    renderChallenge(challenges);
+    startChallengeCountdowns(challenges);
   })
   .catch(() => {
     challengeListEl.innerHTML = '<div class="empty-state">تعذّر تحميل التحدي من الشيت.</div>';
