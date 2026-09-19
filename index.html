@@ -472,13 +472,7 @@
   .task-progress-wrap{ flex:1; min-width:100px; height:5px; background:#2b2a20; border-radius:var(--radius-badge); overflow:hidden;}
   .task-progress-fill{ height:100%; background:var(--olive); transition:width 0.8s ease; position:relative; overflow:hidden;}
 
-  /* ===== حالات المهمة: pending / progress / done ===== */
-  .task-card.status-pending{ opacity:0.72; transition: opacity .3s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-  .task-card.status-pending:hover{ opacity:0.9; }
-  .task-card.status-pending .task-progress-fill{
-    background: repeating-linear-gradient(45deg, rgba(138,128,106,0.4) 0px, rgba(138,128,106,0.4) 6px, transparent 6px, transparent 12px);
-  }
-
+  /* ===== حالات المهمة: progress = طبيعي (شكل قديم) / pending = مقفولة بالكامل / done = شريط مميز ===== */
   .task-card.status-done .task-progress-fill{
     background: linear-gradient(90deg, var(--olive), var(--gold));
     box-shadow: 0 0 10px rgba(217,192,122,0.45);
@@ -1305,19 +1299,16 @@ function renderTasks(list){
         <span class="tape t1"></span>
         <span class="tape t2"></span>
         <div class="challenge-lock-badge">
-          <span class="challenge-lock-title">انتهت المهمة</span>
+          <span class="challenge-lock-title">قيد الانتظار</span>
         </div>
       </div>
     `;
     tasksList.appendChild(card);
   });
 
-  /* قفل تلقائي إذا تاريخ due (نفس صيغ عمود days_left بالتحدي) خلص وقته */
+  /* القفل يعتمد فقط على status: pending = مقفولة، progress و done تطلعان عادي */
   list.forEach((t,i)=>{
-    const deadline = resolveChallengeDeadline(t.due, 'task#' + i + '#' + (t.title || ''));
-    if(deadline && deadline.getTime() <= Date.now()){
-      lockTaskCard(i);
-    }
+    if(t.status === 'pending') lockTaskCard(i);
   });
 }
 
