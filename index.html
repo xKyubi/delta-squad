@@ -1049,10 +1049,6 @@ function renderChallenge(challenges){
   `).join('');
 
   challenges.forEach((c,i)=>{
-    if(c.target === 0){
-      lockChallengeCard(i);
-      return;
-    }
     const fill = document.getElementById('challenge-fill-'+i);
     const pct = document.getElementById('challenge-pct-'+i);
     if(!fill || !pct) return;
@@ -1067,7 +1063,7 @@ function renderChallenge(challenges){
   });
 }
 
-/* قفل موحّد للتحدي: يُستدعى إذا target = 0 بالشيت (قفل يدوي فوري)، أو إذا انتهى العد التنازلي المرتبط بـ days_left */
+/* قفل التحدي: يُستدعى فقط لما ينتهي العد التنازلي المرتبط بـ days_left — target تستخدم فقط لنسبة شريط التقدم ولا تتحكم بالقفل */
 function lockChallengeCard(i){
   const overlay = document.getElementById('challenge-lock-' + i);
   const card = overlay ? overlay.closest('.challenge') : null;
