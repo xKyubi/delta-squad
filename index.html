@@ -218,51 +218,35 @@
   .challenge-bar-fill{ height:100%; background: linear-gradient(90deg, var(--olive), var(--gold)); transition: width 1s ease;}
   .challenge-pct{ font-family:'Oswald',sans-serif; font-size:13px; color:var(--gold); font-weight:600; min-width:36px; text-align:left; direction:ltr;}
 
-  /* ===== تراكب إغلاق التحدي عند الانتهاء — فكرة السلسلة (Locking Chain) ===== */
+  /* ===== تراكب إغلاق التحدي عند الانتهاء ===== */
   .challenge.challenge-ended > *:not(.challenge-lock-overlay){ filter:blur(2px) grayscale(0.35); opacity:0.3; transition: filter .5s ease, opacity .5s ease; }
 
   .challenge-lock-overlay{
     position:absolute; inset:0; z-index:6;
     display:flex; align-items:center; justify-content:center;
     border-radius: var(--radius-lg);
-    opacity:0; pointer-events:none; transition: opacity .45s ease;
+    opacity:0; pointer-events:none; transition: opacity .5s ease;
     background: linear-gradient(rgba(6,6,7,0.6), rgba(6,6,7,0.78));
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    overflow:hidden;
   }
   .challenge-lock-overlay.show{ opacity:1; pointer-events:auto; }
 
-  /* السلسلة القطرية اللي "تلف" على الكرت */
-  .chain-diag{
-    position:absolute; top:50%; left:50%; width:145%; height:36px; z-index:1;
-    transform: translate(-50%,-50%) rotate(-21deg) scaleX(0.35);
-    opacity:0;
-    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.55));
-    transition: transform .85s cubic-bezier(.22,.9,.3,1), opacity .4s ease;
+  .challenge-lock-badge{
+    position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;
+    transform: scale(0.8) translateY(6px); opacity:0;
+    transition: transform .6s cubic-bezier(.22,.9,.3,1), opacity .5s ease;
   }
-  .challenge-lock-overlay.show .chain-diag{ transform: translate(-50%,-50%) rotate(-21deg) scaleX(1); opacity:1; }
-
-  /* مشبك القفل في منتصف السلسلة */
-  .challenge-lock-clasp{
-    position:relative; z-index:3; width:48px; height:48px; border-radius:11px;
-    background: linear-gradient(160deg,#55565c,#212226);
-    border:1px solid rgba(255,255,255,0.14);
-    display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
-    transform: scale(0.35) rotate(-18deg); opacity:0;
-    transition: transform .5s cubic-bezier(.34,1.56,.64,1) .5s, opacity .35s ease .5s;
-  }
-  .challenge-lock-overlay.show .challenge-lock-clasp{ transform:scale(1) rotate(0deg); opacity:1; }
-  .challenge-lock-clasp svg{ width:23px; height:23px; color:var(--stone); }
+  .challenge-lock-overlay.show .challenge-lock-badge{ transform:scale(1) translateY(0); opacity:1; }
 
   .challenge-lock-title{
-    position:relative; z-index:3; margin-top:16px;
-    font-family:'Oswald',sans-serif; font-size:18px; letter-spacing:4px; font-weight:700; color:#ff4d4d;
-    text-transform:uppercase; text-shadow:0 0 18px rgba(255,45,45,0.35);
-    opacity:0; transform:translateY(8px);
-    transition: opacity .4s ease .8s, transform .4s ease .8s;
+    font-family:'Oswald',sans-serif; font-size:19px; letter-spacing:4px; font-weight:700; color:#ff4d4d;
+    text-transform:uppercase;
+    animation: lockGlow 2.6s ease-in-out infinite;
   }
-  .challenge-lock-overlay.show .challenge-lock-title{ opacity:1; transform:translateY(0); }
+  @keyframes lockGlow{
+    0%,100%{ text-shadow:0 0 8px rgba(255,45,45,0.22); }
+    50%{ text-shadow:0 0 22px rgba(255,45,45,0.55); }
+  }
 
   .footer{ border-top:1px solid var(--line); padding:26px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px;}
   .footer img{ width:34px; height:34px; object-fit:contain; opacity:0.85; filter: grayscale(1) brightness(1.15) contrast(1.05);}
@@ -1041,19 +1025,7 @@ function renderChallenge(challenges){
         <span class="challenge-pct" id="challenge-pct-${i}">0%</span>
       </div>
       <div class="challenge-lock-overlay" id="challenge-lock-${i}">
-        <svg class="chain-diag" viewBox="0 0 400 36" preserveAspectRatio="none">
-          <defs>
-            <pattern id="chainLinks-${i}" width="42" height="36" patternUnits="userSpaceOnUse">
-              <ellipse cx="10" cy="18" rx="8" ry="13" fill="none" stroke="#88898e" stroke-width="4.2"/>
-              <ellipse cx="31" cy="18" rx="8" ry="13" fill="none" stroke="#5c5d62" stroke-width="4.2" transform="rotate(90 31 18)"/>
-            </pattern>
-          </defs>
-          <rect width="400" height="36" fill="url(#chainLinks-${i})"/>
-        </svg>
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <span class="challenge-lock-clasp">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          </span>
+        <div class="challenge-lock-badge">
           <span class="challenge-lock-title">انتهى التحدي</span>
         </div>
       </div>
