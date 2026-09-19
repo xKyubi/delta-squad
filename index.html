@@ -1049,6 +1049,10 @@ function renderChallenge(challenges){
   `).join('');
 
   challenges.forEach((c,i)=>{
+    if(c.target === 0){
+      lockChallengeCard(i);
+      return;
+    }
     const fill = document.getElementById('challenge-fill-'+i);
     const pct = document.getElementById('challenge-pct-'+i);
     if(!fill || !pct) return;
@@ -1061,6 +1065,18 @@ function renderChallenge(challenges){
       }, 12);
     }, 400);
   });
+}
+
+/* قفل موحّد للتحدي: يُستدعى إذا target = 0 بالشيت (قفل يدوي فوري)، أو إذا انتهى العد التنازلي المرتبط بـ days_left */
+function lockChallengeCard(i){
+  const overlay = document.getElementById('challenge-lock-' + i);
+  const card = overlay ? overlay.closest('.challenge') : null;
+  const badge = document.getElementById('challenge-countdown-' + i);
+  if(badge) badge.textContent = 'انتهى التحدي';
+  setTimeout(()=>{
+    if(card) card.classList.add('challenge-ended');
+    if(overlay) overlay.classList.add('show');
+  }, 250);
 }
 
 /* عداد تنازلي حي — القيمة تُكتب في عمود days_left بالشيت بإحدى صيغتين:
@@ -1132,11 +1148,7 @@ function startChallengeCountdowns(challenges){
     }
 
     function ended(){
-      el.textContent = 'انتهى التحدي';
-      const card = el.closest('.challenge');
-      const overlay = document.getElementById('challenge-lock-' + i);
-      if(card) card.classList.add('challenge-ended');
-      if(overlay) overlay.classList.add('show');
+      lockChallengeCard(i);
     }
 
     function tick(){
