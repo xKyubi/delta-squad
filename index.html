@@ -922,7 +922,7 @@ function sheetRowsToTasks(rows){
   let headerRowIdx = rows.findIndex(r => r.some(cell => cell.trim().toLowerCase() === 'title'));
   if(headerRowIdx === -1) return [];
   const header = rows[headerRowIdx].map(h => h.trim().toLowerCase());
-  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc'), status: header.indexOf('status'), progress: header.indexOf('progress'), due: header.indexOf('due') };
+  const idx = { title: header.indexOf('title'), desc: header.indexOf('desc'), status: header.indexOf('status'), progress: header.indexOf('progress'), due: header.indexOf('due'), points: header.indexOf('points') };
   const validStatus = ['pending','progress','done'];
   const out = [];
   for(let i=headerRowIdx+1;i<rows.length;i++){
@@ -936,6 +936,7 @@ function sheetRowsToTasks(rows){
       status: validStatus.includes(rawStatus) ? rawStatus : 'pending',
       progress: idx.progress > -1 ? Math.max(0, Math.min(100, parseFloat(r[idx.progress]) || 0)) : 0,
       due: idx.due > -1 ? (r[idx.due]||'').trim() : '',
+      points: idx.points > -1 ? (parseFloat(r[idx.points]) || 0) : 0,
     });
   }
   return out;
@@ -1287,9 +1288,13 @@ function renderTasks(list){
     card.style.animationDelay = (i*0.06) + 's';
     card.innerHTML = `
       <div class="task-top">
-        <h3 class="task-title">${t.title}</h3>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${t.points ? `<span class="challenge-tag" style="color:var(--warn); border-color:var(--warn);">🏆 ${t.points.toLocaleString()} نقطة</span>` : ''}
+          ${t.due ? `<span class="challenge-countdown-badge" id="task-countdown-${i}">--:--:--</span>` : ''}
+        </div>
         <span class="task-status ${t.status}">${statusLabel[t.status]}</span>
       </div>
+      <h3 class="task-title">${t.title}</h3>
       <p class="task-desc">${t.desc}</p>
       <div class="task-bottom">
         <div class="task-progress-wrap"><div class="task-progress-fill" style="width:${t.progress}%"></div></div>
@@ -1321,11 +1326,52 @@ function lockTaskCard(i){
   }, 250);
 }
 
+/* عد تنازلي حي لبادج المهمة (عمود due) — نفس صيغ عمود days_left بالتحدي، بس هنا للعرض فقط ولا يقفل المهمة */
+let _taskCountdownTimers = [];
+function stopTaskCountdowns(){
+  _taskCountdownTimers.forEach(id => clearInterval(id));
+  _taskCountdownTimers = [];
+}
+function startTaskCountdowns(list){
+  stopTaskCountdowns();
+  list.forEach((t, i) => {
+    const el = document.getElementById('task-countdown-' + i);
+    if(!el || !t.due) return;
+
+    const deadline = resolveChallengeDeadline(t.due, 'task#' + i + '#' + (t.title || ''));
+    if(!deadline){
+      el.textContent = t.due;
+      return;
+    }
+
+    function tick(){
+      const diff = deadline.getTime() - Date.now();
+      if(diff <= 0){ el.textContent = 'انتهى الوقت'; return; }
+
+      const totalSec = Math.floor(diff / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+
+      el.textContent = days > 0
+        ? `${pad2(days)}:${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`
+        : `${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
+    }
+
+    tick();
+    const id = setInterval(tick, 1000);
+    _taskCountdownTimers.push(id);
+  });
+}
+
 fetch(TASKS_CSV_URL)
   .then(res => { if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
   .then(text => {
     const rows = parseCSV(text);
-    renderTasks(sheetRowsToTasks(rows));
+    const tasks = sheetRowsToTasks(rows);
+    renderTasks(tasks);
+    startTaskCountdowns(tasks);
   })
   .catch(() => {
     tasksList.innerHTML = '<div class="empty-state">تعذّر تحميل المهام من الشيت.</div>';
