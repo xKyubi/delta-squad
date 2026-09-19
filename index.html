@@ -228,8 +228,22 @@
     opacity:0; pointer-events:none; transition: opacity .5s ease;
     background: linear-gradient(rgba(6,6,7,0.6), rgba(6,6,7,0.78));
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    overflow:hidden;
   }
   .challenge-lock-overlay.show{ opacity:1; pointer-events:auto; }
+
+  .challenge-lock-overlay .tape{
+    position:absolute; left:-12%; right:-12%; height:20px;
+    background-image: repeating-linear-gradient(-45deg, #141414 0px, #141414 13px, var(--warn) 13px, var(--warn) 26px);
+    background-size:52px 100%;
+    box-shadow: 0 0 14px rgba(0,0,0,0.5);
+    opacity:0; transition: opacity .35s ease, transform .6s cubic-bezier(.22,.9,.3,1);
+  }
+  .challenge-lock-overlay .tape.t1{ top:20px; transform:rotate(-3.5deg) scaleX(0.3); }
+  .challenge-lock-overlay .tape.t2{ bottom:20px; transform:rotate(3deg) scaleX(0.3); }
+  .challenge-lock-overlay.show .tape{ opacity:0.92; }
+  .challenge-lock-overlay.show .tape.t1{ transform:rotate(-3.5deg) scaleX(1); }
+  .challenge-lock-overlay.show .tape.t2{ transform:rotate(3deg) scaleX(1); }
 
   .challenge-lock-badge{
     position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;
@@ -1025,6 +1039,8 @@ function renderChallenge(challenges){
         <span class="challenge-pct" id="challenge-pct-${i}">0%</span>
       </div>
       <div class="challenge-lock-overlay" id="challenge-lock-${i}">
+        <span class="tape t1"></span>
+        <span class="tape t2"></span>
         <div class="challenge-lock-badge">
           <span class="challenge-lock-title">انتهى التحدي</span>
         </div>
