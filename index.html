@@ -1297,8 +1297,8 @@ function renderTasks(list){
       <h3 class="task-title">${t.title}</h3>
       <p class="task-desc">${t.desc}</p>
       <div class="task-bottom">
-        <div class="task-progress-wrap"><div class="task-progress-fill" style="width:${t.progress}%"></div></div>
-        <div class="task-due">📅 ${t.due}</div>
+        <div class="task-progress-wrap"><div class="task-progress-fill" id="task-fill-${i}" style="width:0%"></div></div>
+        <span class="challenge-pct" id="task-pct-${i}">0%</span>
       </div>
       <div class="challenge-lock-overlay" id="task-lock-${i}">
         <span class="tape t1"></span>
@@ -1309,6 +1309,22 @@ function renderTasks(list){
       </div>
     `;
     tasksList.appendChild(card);
+  });
+
+  /* تحريك شريط ونسبة التقدم من 0 للقيمة الفعلية */
+  list.forEach((t,i)=>{
+    const fill = document.getElementById('task-fill-'+i);
+    const pct = document.getElementById('task-pct-'+i);
+    if(!fill || !pct) return;
+    if(t.progress <= 0){ pct.textContent = '0%'; return; }
+    setTimeout(()=>{
+      fill.style.width = t.progress + '%';
+      let cur = 0;
+      const timer = setInterval(()=>{
+        cur++; pct.textContent = cur + '%';
+        if(cur >= t.progress) clearInterval(timer);
+      }, 12);
+    }, 400);
   });
 
   /* القفل يعتمد فقط على status: pending = مقفولة، progress و done تطلعان عادي */
