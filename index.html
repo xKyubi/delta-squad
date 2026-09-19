@@ -245,28 +245,13 @@
   .challenge-lock-overlay .tape.t2{ bottom:20px; transform:rotate(3deg); }
 
   .challenge-lock-badge{
-    position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:10px;
-    transform: scale(0.92); transition: transform .5s cubic-bezier(.2,.8,.2,1);
+    position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;
+    transform: scale(0.85); opacity:0; transition: transform .55s cubic-bezier(.22,.9,.3,1), opacity .55s ease;
   }
-  .challenge-lock-overlay.show .challenge-lock-badge{ transform:scale(1); }
-  .challenge-lock-ring{
-    width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    border:1.5px solid #ff4d4d;
-    background: radial-gradient(circle, rgba(255,45,45,0.18), transparent 72%);
-    box-shadow: 0 0 0 4px rgba(255,45,45,0.08), 0 0 20px rgba(255,45,45,0.3);
-    animation: lockPulse 2.4s ease-in-out infinite;
-  }
-  @keyframes lockPulse{
-    0%,100%{ box-shadow: 0 0 0 4px rgba(255,45,45,0.08), 0 0 16px rgba(255,45,45,0.28); }
-    50%{ box-shadow: 0 0 0 7px rgba(255,45,45,0.05), 0 0 26px rgba(255,45,45,0.42); }
-  }
-  .challenge-lock-ring svg{ width:22px; height:22px; color:#ff4d4d; }
+  .challenge-lock-overlay.show .challenge-lock-badge{ transform:scale(1); opacity:1; }
   .challenge-lock-title{
-    font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:3px; font-weight:700; color:#ff4d4d;
-    text-transform:uppercase;
-  }
-  .challenge-lock-sub{
-    font-family:'Tajawal',sans-serif; font-size:11.5px; color:var(--text-dim); letter-spacing:0.3px;
+    font-family:'Oswald',sans-serif; font-size:19px; letter-spacing:4px; font-weight:700; color:#ff4d4d;
+    text-transform:uppercase; text-shadow:0 0 18px rgba(255,45,45,0.35);
   }
 
   .footer{ border-top:1px solid var(--line); padding:26px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px;}
@@ -1049,11 +1034,7 @@ function renderChallenge(challenges){
         <span class="tape t1"></span>
         <span class="tape t2"></span>
         <div class="challenge-lock-badge">
-          <span class="challenge-lock-ring">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          </span>
           <span class="challenge-lock-title">انتهى التحدي</span>
-          <span class="challenge-lock-sub">تم إغلاق هذا التحدي</span>
         </div>
       </div>
     </div>
