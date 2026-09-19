@@ -219,7 +219,8 @@
   .challenge-pct{ font-family:'Oswald',sans-serif; font-size:13px; color:var(--gold); font-weight:600; min-width:36px; text-align:left; direction:ltr;}
 
   /* ===== تراكب إغلاق التحدي عند الانتهاء ===== */
-  .challenge.challenge-ended > *:not(.challenge-lock-overlay){ filter:blur(2px) grayscale(0.35); opacity:0.3; transition: filter .5s ease, opacity .5s ease; }
+  .challenge.challenge-ended > *:not(.challenge-lock-overlay),
+  .task-card.task-ended > *:not(.challenge-lock-overlay){ filter:blur(2px) grayscale(0.35); opacity:0.3; transition: filter .5s ease, opacity .5s ease; }
 
   .challenge-lock-overlay{
     position:absolute; inset:0; z-index:6;
@@ -1300,9 +1301,33 @@ function renderTasks(list){
         <div class="task-progress-wrap"><div class="task-progress-fill" style="width:${t.progress}%"></div></div>
         <div class="task-due">📅 ${t.due}</div>
       </div>
+      <div class="challenge-lock-overlay" id="task-lock-${i}">
+        <span class="tape t1"></span>
+        <span class="tape t2"></span>
+        <div class="challenge-lock-badge">
+          <span class="challenge-lock-title">انتهت المهمة</span>
+        </div>
+      </div>
     `;
     tasksList.appendChild(card);
   });
+
+  /* قفل تلقائي إذا تاريخ due (نفس صيغ عمود days_left بالتحدي) خلص وقته */
+  list.forEach((t,i)=>{
+    const deadline = resolveChallengeDeadline(t.due, 'task#' + i + '#' + (t.title || ''));
+    if(deadline && deadline.getTime() <= Date.now()){
+      lockTaskCard(i);
+    }
+  });
+}
+
+function lockTaskCard(i){
+  const overlay = document.getElementById('task-lock-' + i);
+  const card = overlay ? overlay.closest('.task-card') : null;
+  setTimeout(()=>{
+    if(card) card.classList.add('task-ended');
+    if(overlay) overlay.classList.add('show');
+  }, 250);
 }
 
 fetch(TASKS_CSV_URL)
