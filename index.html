@@ -210,6 +210,16 @@ button{ font-family:inherit; }
 .op-stamp em{ font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.34em; margin-top:2px; }
 .op.ended .op-stamp{ opacity:1; }
 .op.ended .op-stamp span{ scale:1; }
+/* ختم "انتهى التحدي" على شكل شريط تحذير (تحديات الأسبوع) */
+.op-stamp.tape .tape-box{ position:relative; display:flex; align-items:center; justify-content:center; min-width:220px; padding:20px 34px;
+  border-radius:14px; background:#0b0c0e; overflow:hidden; scale:.82; transition:scale .45s cubic-bezier(.3,1.6,.5,1);
+  box-shadow:0 16px 34px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06); }
+.op.ended .op-stamp.tape .tape-box{ scale:1; }
+.op-stamp.tape .tape-strip{ position:absolute; left:-8px; right:-8px; height:18px;
+  background:repeating-linear-gradient(135deg, var(--warn) 0 15px, #0b0c0e 15px 30px); }
+.op-stamp.tape .tape-strip.top{ top:-8px; }
+.op-stamp.tape .tape-strip.bottom{ bottom:-8px; }
+.op-stamp.tape b{ position:relative; z-index:1; font-weight:800; font-size:19px; color:var(--warn); text-shadow:0 0 16px rgba(255,80,60,.6); white-space:nowrap; }
 /* ===== المهمة السرية (pending) ===== */
 .op.secret{ grid-template-columns:150px minmax(0,1fr); padding:0; gap:0; align-items:stretch; border-color:rgba(255,255,255,.1);
   background:repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 14px), var(--panel); }
@@ -1483,6 +1493,9 @@ document.addEventListener('click', e => {
 const challengeListEl = document.getElementById('challenge-list');
 let _challengeCountdownTimers = [];
 function stamp(id, title, en){ return `<div class="op-stamp" id="${id}"><span>${title}<em>${en}</em></span></div>`; }
+function tapeStamp(id, text){
+  return `<div class="op-stamp tape" id="${id}"><div class="tape-box"><i class="tape-strip top"></i><b>${text}</b><i class="tape-strip bottom"></i></div></div>`;
+}
 function footHTML(timeId, hasTime, points){
   return `<div class="op-foot">
     ${hasTime ? `<span class="op-time"><small>الوقت المتبقي</small><b id="${timeId}">--:--:--</b></span>` : ''}
@@ -1490,17 +1503,16 @@ function footHTML(timeId, hasTime, points){
   </div>`;
 }
 function lockChallengeCard(i){
-  /* التحدي المنتهي ينحذف من العرض بدل ما يبين بعلامة "انتهى التحدي" */
+  /* التحدي المنتهي يبقى ظاهر بالكرت، وبس ينحط عليه ختم "انتهى التحدي" */
   const card = document.getElementById('challenge-card-' + i); if(!card) return;
-  card.remove();
-  if(!challengeListEl.querySelector('.op.challenge')){ challengeListEl.innerHTML = '<div class="empty">لا يوجد تحدي نشط حالياً</div>'; }
+  const b = document.getElementById('challenge-countdown-' + i); if(b) b.textContent = 'انتهى';
+  const st = card.querySelector('.op-st'); if(st) st.innerHTML = '<i></i>منتهي';
+  card.classList.add('ended');
 }
 function renderChallenge(list){
   _challengeCountdownTimers.forEach(clearInterval); _challengeCountdownTimers = [];
-  /* استبعاد أي تحدي انتهى وقته من الأساس، عشان محد يشوفه */
-  const active = list.filter((c, i) => !c.daysLeft || !resolveChallengeDeadline(c.daysLeft, (c.title || '') + '#' + i) || resolveChallengeDeadline(c.daysLeft, (c.title || '') + '#' + i).getTime() > Date.now());
-  if(!active.length){ challengeListEl.innerHTML = '<div class="empty">لا يوجد تحدي نشط حالياً</div>'; return; }
-  challengeListEl.innerHTML = active.map((c, i) => `
+  if(!list.length){ challengeListEl.innerHTML = '<div class="empty">لا يوجد تحدي نشط حالياً</div>'; return; }
+  challengeListEl.innerHTML = list.map((c, i) => `
     <article class="op challenge rise" id="challenge-card-${i}" style="animation-delay:${0.1 + i*0.06}s">
       <div class="op-ring"><div><b id="challenge-pct-${i}">0%</b><small>الإنجاز</small></div></div>
       <div class="op-body">
@@ -1509,8 +1521,9 @@ function renderChallenge(list){
         ${c.desc ? `<p>${esc(c.desc)}</p>` : ''}
         ${footHTML('challenge-countdown-' + i, !!c.daysLeft, c.points)}
       </div>
+      ${tapeStamp('challenge-lock-' + i, 'انتهى التحدي')}
     </article>`).join('');
-  active.forEach((c, i) => {
+  list.forEach((c, i) => {
     animateRing(document.getElementById('challenge-card-' + i), document.getElementById('challenge-pct-' + i), c.target);
     const el = document.getElementById('challenge-countdown-' + i);
     if(el) runCountdown(el, c.daysLeft, (c.title || '') + '#' + i, () => lockChallengeCard(i), _challengeCountdownTimers);
