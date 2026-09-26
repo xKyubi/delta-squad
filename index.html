@@ -1301,7 +1301,7 @@ function loadSheet(url){ return fetch(url).then(res => { if(!res.ok) throw new E
    2) مدة DD:HH:MM:SS أو HH:MM:SS أو MM:SS          (تبدأ من أول مرة يفتح فيها الشخص الصفحة على جهازه) */
 function sanitizeSheetText(raw){
   if(raw == null) return '';
-  return String(raw).replace(/[​-‏‪-‮⁦-⁩﻿]/g, '')
+  return String(raw).replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '')
     .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
     .replace(/\s+/g, ' ').trim();
 }
