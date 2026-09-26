@@ -2384,4 +2384,15 @@ function deployScheduleText(){
     wrap.appendChild(q); wrap.appendChild(box);
     body.scrollTop = body.scrollHeight;
   }
-
+  sug.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act="me"]'); if(!b) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    say('me', b.textContent);
+    let saved = null; try{ saved = localStorage.getItem(KEY); }catch(err){}
+    const m = saved && roster().find(r => r.name === saved);
+    if(m) report(m); else picker();
+  }, true);
+})();
+</script>
+</body>
+</html>
