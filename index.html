@@ -208,10 +208,43 @@ button{ font-family:inherit; }
 .op-stamp span{ display:flex; flex-direction:column; align-items:center; padding:10px 28px 8px; border:3px double var(--sc, var(--warn)); border-radius:8px; color:var(--sc, var(--warn));
   font-size:24px; font-weight:700; rotate:-8deg; scale:1.8; transition:scale .45s cubic-bezier(.3,1.6,.5,1); background:rgba(0,0,0,.35); }
 .op-stamp em{ font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.34em; margin-top:2px; }
-.op.ended .op-stamp, .op.waiting .op-stamp{ opacity:1; }
-.op.ended .op-stamp span, .op.waiting .op-stamp span{ scale:1; }
-.op.waiting .op-stamp{ --sc:var(--amber); }
-.op.ended > :not(.op-stamp), .op.waiting > :not(.op-stamp){ filter:grayscale(1); opacity:.38; }
+.op.ended .op-stamp{ opacity:1; }
+.op.ended .op-stamp span{ scale:1; }
+/* ===== المهمة السرية (pending) ===== */
+.op.secret{ grid-template-columns:150px minmax(0,1fr); padding:0; gap:0; align-items:stretch; border-color:rgba(255,255,255,.1);
+  background:repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 14px), var(--panel); }
+.op.secret::before{ display:none; }
+.sec-lock{ display:grid; place-items:center; padding:20px 0; border-left:1px dashed var(--line-2);
+  background:repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 6px, transparent 6px 14px); }
+.sec-lock span{ width:84px; height:84px; display:grid; place-items:center; border-radius:50%; color:var(--steel-2);
+  background:radial-gradient(circle at 35% 30%, #1d2024, #090a0c 75%); border:1px dashed rgba(255,255,255,.22); box-shadow:inset 0 2px 10px rgba(0,0,0,.7); }
+.sec-lock svg{ width:30px; height:30px; }
+.op.secret .op-body{ padding:18px 22px 18px 40px; min-width:0; }
+.op.secret .op-st{ color:var(--tx-2); border-color:var(--line-2); } .op.secret .op-st i{ animation:none; box-shadow:none; }
+.op.secret h3{ color:var(--tx-2); }
+.sec-lines{ display:grid; gap:9px; margin:4px 0 16px; }
+.sec-lines i{ display:block; height:11px; border-radius:6px; background:linear-gradient(90deg, rgba(255,255,255,.07), rgba(255,255,255,.035)); }
+.sec-lines i:nth-child(2){ width:70%; }
+.sec-gate{ display:flex; align-items:center; gap:14px; padding:10px 14px; border-radius:12px; background:rgba(0,0,0,.4); border:1px solid var(--line); }
+.sec-gate .g-l{ font-size:13px; font-weight:600; color:var(--tx-2); white-space:nowrap; }
+.sec-gate b{ font-family:var(--f-en); color:var(--steel); letter-spacing:.06em; }
+.sec-gate .g-bar{ flex:1; height:5px; border-radius:5px; background:rgba(255,255,255,.07); overflow:hidden; direction:ltr; }
+.sec-gate .g-bar i{ display:block; height:100%; width:0; border-radius:5px; background:linear-gradient(90deg,#6f757c,#eceef0); transition:width 1.1s cubic-bezier(.2,.8,.2,1); }
+.sec-gate .g-r{ font-size:12px; color:var(--tx-3); white-space:nowrap; } .sec-gate .g-r b{ color:var(--amber); }
+.sec-code{ position:absolute; top:14px; bottom:14px; left:12px; width:10px; opacity:.3; pointer-events:none;
+  background:repeating-linear-gradient(0deg, var(--steel) 0 2px, transparent 2px 4px, var(--steel) 4px 5px, transparent 5px 9px); }
+@media (max-width:600px){
+  .op.secret{ grid-template-columns:1fr; }
+  .sec-lock{ padding:16px 0; border-left:0; border-bottom:1px dashed var(--line-2); }
+  .sec-lock span{ width:64px; height:64px; } .sec-lock svg{ width:24px; height:24px; }
+  .op.secret .op-body{ padding:16px 16px 16px 30px; }
+  .sec-gate{ flex-wrap:wrap; gap:8px 12px; } .sec-gate .g-bar{ order:3; flex-basis:100%; }
+}
+/* قيد الانتظار: الكرت يبان واضح بدون ختم فوق الكلام */
+.op.waiting{ border-style:dashed; border-color:rgba(232,184,90,.28); }
+.op.waiting .op-st{ color:var(--amber); border-color:rgba(232,184,90,.35); background:rgba(232,184,90,.08); }
+.op.waiting .op-ring, .op.waiting .op-foot{ opacity:.6; }
+.op.ended > :not(.op-stamp){ filter:grayscale(1); opacity:.38; }
 
 /* ---------- الأعضاء ---------- */
 .m-tools{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:30px; }
@@ -226,27 +259,34 @@ button{ font-family:inherit; }
 .m-gh em{ font-style:normal; font-family:var(--f-en); font-size:10.5px; letter-spacing:.3em; color:var(--tx-3); }
 .m-gh .n{ font-family:var(--f-en); font-size:12px; font-weight:700; color:#0b0c0e; background:var(--steel); border-radius:999px; padding:1px 9px; }
 .m-gh .line{ flex:1; height:1px; background:linear-gradient(270deg, var(--line-2), transparent); }
-.m-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:12px; }
-.mc{ --acc:var(--steel-2); position:relative; display:flex; align-items:center; gap:14px; padding:14px 16px; cursor:pointer; text-align:right; color:inherit;
-  border-radius:var(--r-md); background:var(--panel); border:1px solid var(--line); backdrop-filter:blur(8px); transition:border-color .2s, translate .2s; }
-.mc:hover{ border-color:var(--line-3); translate:0 -2px; }
-.mc:focus-visible{ outline:2px solid var(--steel); outline-offset:2px; }
-.mc .av{ width:52px; height:52px; border-radius:14px; box-shadow:0 0 0 1.5px var(--acc); border-color:transparent; }
-.mc-body{ min-width:0; flex:1; }
-.mc-name{ font-size:15px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.mc-meta{ display:flex; align-items:center; gap:8px; margin-top:5px; min-width:0; }
-.tag{ display:inline-flex; align-items:center; gap:6px; padding:2px 10px; border-radius:999px; font-family:var(--f-en); font-size:11px; font-weight:600; letter-spacing:.06em;
-  color:var(--acc, var(--steel)); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); white-space:nowrap; }
-.mc-nick{ font-family:var(--f-en); font-size:12px; color:var(--tx-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:ltr; }
-.mc.off{ opacity:.62; }
-.mc.t-leader{ --acc:var(--gold); } .mc.t-co{ --acc:var(--silver); } .mc.t-mgmt{ --acc:var(--bronze); }
-.m-group.g-leader .m-grid{ grid-template-columns:minmax(0,560px); justify-content:center; }
-.g-leader .mc{ padding:22px 24px; gap:20px; border-color:rgba(236,220,170,.3);
-  background:radial-gradient(ellipse 80% 90% at 100% 0%, rgba(236,220,170,.12), transparent 70%), var(--panel-2); }
-.g-leader .mc .av{ width:88px; height:88px; border-radius:22px; font-size:26px; box-shadow:0 0 0 2px var(--acc), 0 0 30px rgba(236,220,170,.18); }
-.g-leader .mc-name{ font-size:21px; }
-.g-leader .m-gh{ justify-content:center; } .g-leader .m-gh .line{ display:none; }
-.g-leader .m-gh em{ color:var(--gold); }
+.m-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); gap:14px; }
+/* كرت العضو: صورة كاملة بشكل بطاقة هوية */
+.mc{ --acc:rgba(255,255,255,.16); position:relative; display:block; padding:0; cursor:pointer; overflow:hidden; aspect-ratio:3/4; border-radius:16px; color:inherit; font:inherit; text-align:center;
+  background:#0b0c0e; border:1px solid var(--acc); transition:translate .25s, box-shadow .25s, border-color .25s; }
+.mc:hover{ translate:0 -4px; box-shadow:0 20px 40px rgba(0,0,0,.6); border-color:rgba(255,255,255,.35); }
+.mc:focus-visible{ outline:2px solid var(--steel); outline-offset:3px; }
+.mc-ph{ position:absolute; inset:0; display:grid; place-items:center; background:radial-gradient(circle at 50% 32%, #272b30, #0a0b0d 72%); }
+.mc-ph .ini{ font-family:var(--f-en); font-size:46px; font-weight:700; color:var(--steel-2); margin-bottom:28%; }
+.mc-ph img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:scale .6s cubic-bezier(.2,.8,.2,1); }
+.mc:hover .mc-ph img{ scale:1.06; }
+.mc.off .mc-ph img, .mc.off .mc-ph .ini{ filter:grayscale(1) brightness(.6); }
+.mc-info{ position:absolute; inset:auto 0 0 0; z-index:2; padding:46px 10px 12px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:linear-gradient(0deg, rgba(6,7,8,.98) 18%, rgba(6,7,8,.72) 58%, transparent); }
+.mc-name{ font-size:14.5px; font-weight:700; line-height:1.3; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mc-nick{ font-family:var(--f-en); font-size:11px; color:var(--tx-3); direction:ltr; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mc .tag{ font-size:10.5px; padding:2px 9px; color:var(--rank, var(--steel)); background:rgba(0,0,0,.5); }
+.mc-st{ position:absolute; top:10px; left:10px; z-index:2; display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:600;
+  color:var(--tx-2); background:rgba(0,0,0,.62); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(4px); }
+.mc-st i{ width:6px; height:6px; border-radius:50%; background:var(--tx-3); }
+.mc.on .mc-st{ color:var(--ok); } .mc.on .mc-st i{ background:var(--ok); box-shadow:0 0 8px var(--ok); }
+.mc-lv{ position:absolute; top:10px; right:10px; z-index:2; font-family:var(--f-en); font-size:10px; font-weight:700; letter-spacing:.14em; color:#0b0c0e; background:var(--rank, var(--metal)); padding:2px 8px; border-radius:6px; }
+.mc.t-leader{ --acc:rgba(236,220,170,.55); --rank:var(--gold); box-shadow:0 0 34px rgba(236,220,170,.12); }
+.mc.t-co{ --acc:rgba(207,211,216,.45); --rank:var(--silver); }
+.mc.t-mgmt{ --acc:rgba(196,150,112,.45); --rank:var(--bronze); }
+/* القيادة: كروت أكبر بالنص */
+.m-group.g-lead .m-grid{ grid-template-columns:repeat(auto-fit, minmax(190px, 220px)); justify-content:center; gap:18px; }
+.m-group.g-lead .m-gh{ justify-content:center; } .m-group.g-lead .m-gh .line{ display:none; }
+.g-lead .mc-name{ font-size:16px; }
 
 /* ---------- المهام ---------- */
 .narrow{ max-width:900px; }
@@ -336,24 +376,34 @@ button{ font-family:inherit; }
 #system-rules .timeline-marker{ display:grid; place-items:center; width:30px; height:30px; flex-shrink:0; border-radius:9px; font-family:var(--f-en); font-size:13px; font-weight:700; color:#0b0c0e; background:var(--metal); }
 #system-rules p{ margin:0; padding-inline-start:42px; font-size:14px; line-height:1.8; color:var(--tx-2); }
 
-/* هرم القيادة */
-.h-wrap{ display:flex; flex-direction:column; align-items:stretch; }
-.h-tier{ padding:16px; border-radius:16px; background:rgba(255,255,255,.025); border:1px solid var(--line); }
-.h-th{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-.h-th .lv{ font-family:var(--f-en); font-size:11px; font-weight:700; color:#0b0c0e; background:var(--metal); border-radius:6px; padding:2px 8px; }
-.h-th b{ font-size:15px; } .h-th em{ margin-inline-start:auto; font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.3em; color:var(--tx-3); }
-.h-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; }
-.h-card{ position:relative; width:180px; padding:0; cursor:pointer; overflow:hidden; border-radius:16px; border:1px solid var(--line-2); background:#0c0d0f; color:inherit; transition:border-color .2s, translate .2s; }
-.h-card:hover{ border-color:var(--line-3); translate:0 -3px; }
-.h-ph{ position:relative; display:grid; place-items:center; aspect-ratio:1/1; background:radial-gradient(circle at 50% 35%, #25282d, #0a0b0d 75%); }
+/* هرم القيادة: شجرة تنظيمية */
+.org{ display:flex; flex-direction:column; align-items:center; padding:4px 0 6px; }
+.org-lv{ display:flex; flex-direction:column; align-items:center; width:100%; }
+.org-lb{ display:inline-flex; align-items:center; gap:10px; padding:5px 16px 5px 6px; border-radius:999px; font-size:13.5px; font-weight:700;
+  background:rgba(255,255,255,.04); border:1px solid var(--line-2); margin-bottom:22px; }
+.org-lb .lv{ font-family:var(--f-en); font-size:11px; font-weight:700; color:#0b0c0e; background:var(--metal); border-radius:999px; padding:2px 9px; }
+.org-lb em{ font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.26em; color:var(--tx-3); }
+.org-row{ position:relative; display:flex; justify-content:center; gap:26px; flex-wrap:wrap; }
+.org-bar{ position:absolute; top:-12px; left:50%; translate:-50% 0; height:1px; background:var(--line-3); }
+.org-link{ position:relative; width:1px; height:40px; margin:10px 0; background:linear-gradient(180deg, var(--line-3), var(--line)); }
+.org-link i{ position:absolute; left:-3px; top:0; width:7px; height:7px; border-radius:50%; background:#fff; box-shadow:0 0 10px #fff; animation:orgPulse 1.8s ease-in infinite; }
+@keyframes orgPulse{ from{ top:-3px; opacity:1; } to{ top:calc(100% - 4px); opacity:.15; } }
+.h-card{ position:relative; width:150px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:0; cursor:pointer; background:none; border:0; color:inherit; font:inherit; }
+.org-row.multi .h-card::before{ content:""; position:absolute; top:-12px; left:50%; width:1px; height:12px; background:var(--line-3); }
+.h-ph{ position:relative; width:112px; height:112px; border-radius:50%; padding:3px; transition:translate .25s;
+  background:conic-gradient(from 210deg, #ffffff, #6e737a, #e9ebee, #50545a, #ffffff); box-shadow:0 14px 30px rgba(0,0,0,.6); }
+.h-ph > span:first-child{ position:relative; display:grid; place-items:center; width:100%; height:100%; overflow:hidden; border-radius:50%; border:3px solid #0e1012;
+  background:radial-gradient(circle at 50% 35%, #26292e, #0a0b0d 75%); }
 .h-ph img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.h-ph .ini{ font-family:var(--f-en); font-size:40px; font-weight:700; color:var(--steel); }
-.h-info{ position:absolute; inset:auto 0 0 0; padding:34px 10px 12px; display:flex; flex-direction:column; align-items:center; gap:5px; background:linear-gradient(0deg, rgba(6,7,8,.96), rgba(6,7,8,.6) 60%, transparent); }
-.h-name{ font-size:14px; font-weight:700; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.h-on{ position:absolute; top:10px; left:10px; width:10px; height:10px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 2px #0c0d0f, 0 0 10px var(--ok); }
-.h-tier.t1 .h-card{ width:210px; border-color:rgba(236,220,170,.4); box-shadow:0 0 30px rgba(236,220,170,.1); }
-.h-link{ position:relative; height:30px; display:flex; justify-content:center; }
-.h-link::before{ content:""; width:1px; height:100%; background:linear-gradient(180deg, var(--line-3), var(--line)); }
+.h-ph .ini{ font-family:var(--f-en); font-size:32px; font-weight:700; color:var(--steel); }
+.h-card:hover .h-ph{ translate:0 -4px; }
+.h-card.off .h-ph img{ filter:grayscale(1) brightness(.7); }
+.h-on{ position:absolute; bottom:7px; left:7px; z-index:2; width:15px; height:15px; border-radius:50%; background:var(--ok); border:3px solid #0e1012; box-shadow:0 0 10px var(--ok); }
+.h-name{ font-size:14.5px; font-weight:700; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.h-card .tag{ font-size:10.5px; }
+.h-card.t-leader .h-ph{ background:conic-gradient(from 210deg, #fff6d8, #a8894a, #f5e2a8, #7d6330, #fff6d8); box-shadow:0 14px 30px rgba(0,0,0,.6), 0 0 36px rgba(236,220,170,.22); }
+.h-card.t-leader .tag{ color:var(--gold); border-color:rgba(236,220,170,.35); }
+.org-lv.l1 .h-card{ width:170px; } .org-lv.l1 .h-ph{ width:136px; height:136px; } .org-lv.l1 .h-name{ font-size:16px; }
 
 /* بطاقة العضو */
 .dossier{ position:relative; width:100%; max-width:460px; margin:auto; overflow:hidden; border-radius:24px; background:linear-gradient(170deg,#17191d,#0a0b0d); border:1px solid var(--line-2); box-shadow:0 30px 80px rgba(0,0,0,.75); animation:rise .35s cubic-bezier(.2,.8,.2,1); }
@@ -614,8 +664,10 @@ button{ font-family:inherit; }
   .op-ring{ width:92px; height:92px; } .op-ring b{ font-size:20px; }
   .op h3{ font-size:16.5px; }
   .input{ min-width:0; width:100%; }
-  .m-grid{ grid-template-columns:1fr; }
-  .g-leader .mc{ padding:18px; } .g-leader .mc .av{ width:70px; height:70px; }
+  .m-grid, .m-group.g-lead .m-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+  .m-group.g-lead .m-grid{ display:flex; flex-wrap:wrap; justify-content:center; } .m-group.g-lead .mc{ width:calc(50% - 5px); }
+  .h-name{ white-space:normal; line-height:1.3; text-align:center; }
+  .mc-ph .ini{ font-size:34px; } .mc-name, .g-lead .mc-name{ font-size:13px; } .mc-info{ padding:40px 8px 10px; }
   .ov-days{ grid-template-columns:1fr; }
   .ov-days li{ flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; }
   .ov-next{ width:100%; }
@@ -623,7 +675,8 @@ button{ font-family:inherit; }
   #system-rules p{ padding-inline-start:0; }
   .timeline.two{ grid-template-columns:1fr; }
   .modal-box{ padding:26px 16px 20px; }
-  .h-card{ width:calc(50% - 7px); } .h-tier.t1 .h-card{ width:70%; }
+  .org-row{ gap:18px 12px; } .org-bar, .org-row.multi .h-card::before{ display:none; }
+  .h-card, .org-lv.l1 .h-card{ width:132px; } .h-ph{ width:92px; height:92px; } .org-lv.l1 .h-ph{ width:108px; height:108px; } .h-name{ font-size:13px; }
   .ds-head{ flex-direction:column; align-items:center; text-align:center; } .ds-tags{ justify-content:center; } .ds-nick{ text-align:center; }
   .side-count span{ font-size:18px; }
 }
@@ -1060,7 +1113,7 @@ function tierOf(r){
   const co = /\bco\b|co[\s\-_]*lead|نائب/.test(r);
   if((/leader|قائد|commander/.test(r)) && !co) return 'leader';
   if(co) return 'co';
-  if(/manag|admin|إدار|ادار|officer/.test(r)) return 'mgmt';
+  if(/manag|admin|super|إدار|ادار|مشرف|officer/.test(r)) return 'mgmt';
   return 'member';
 }
 function lockScroll(on){ document.body.style.overflow = on ? 'hidden' : ''; }
@@ -1157,36 +1210,38 @@ const HIERARCHY_ORDER = [
   ['Mohammed Alotaibi', 'Yousef Binadnan', 'Dafallah ibrahim'],
 ];
 const HIER_TIERS = [
-  { ar:'القيادة العليا', en:'COMMAND' },
-  { ar:'القيادة المساندة', en:'CO-COMMAND' },
+  { ar:'القيادة', en:'COMMAND' },
+  { ar:'الإشراف', en:'SUPERVISION' },
   { ar:'الإدارة', en:'MANAGEMENT' },
 ];
+const tierInfo = t => HIER_TIERS[t] || { ar:'المستوى ' + (t+1), en:'LEVEL ' + pad2(t+1) };
+/* مستوى العضو بالهرم (0 = أعلى) أو -1 لو مو من القيادة */
+function levelOf(m){ const n = m.name.trim().toLowerCase(); return HIERARCHY_ORDER.findIndex(t => t.some(x => x.trim().toLowerCase() === n)); }
 const hierarchyTreeEl = document.getElementById('hierarchy-tree');
+const ORG_W = 150, ORG_W1 = 170, ORG_GAP = 26;
 function renderHierarchy(){
   const roster = currentRoster || [];
-  const wrap = document.createElement('div'); wrap.className = 'h-wrap';
-  let any = false;
+  let html = '', any = false;
   HIERARCHY_ORDER.forEach((names, t) => {
     const people = names.map(n => roster.find(r => r.name.trim().toLowerCase() === n.trim().toLowerCase())).filter(Boolean);
     if(!people.length) return;
-    if(any) wrap.insertAdjacentHTML('beforeend', '<div class="h-link"></div>');
+    if(any) html += '<div class="org-link"><i></i></div>';
     any = true;
-    const tier = HIER_TIERS[t] || { ar:'المستوى ' + (t+1), en:'TIER ' + pad2(t+1) };
-    wrap.insertAdjacentHTML('beforeend', `
-      <section class="h-tier t${t+1}">
-        <header class="h-th"><span class="lv">${pad2(t+1)}</span><b>${tier.ar}</b><em>${tier.en}</em></header>
-        <div class="h-row">${people.map(p => `
-          <button type="button" class="h-card" data-idx="${p.idx}">
-            <span class="h-ph"><span class="ini">${initials(p.name)}</span>${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>
-            <span class="h-info"><span class="h-name">${esc(p.name)}</span><span class="tag">${esc(p.rank)}</span></span>
-            ${p.status === 'online' ? '<span class="h-on"></span>' : ''}
+    const info = tierInfo(t), w = t === 0 ? ORG_W1 : ORG_W;
+    const bar = people.length > 1 ? `<span class="org-bar" style="width:${(people.length - 1) * (w + ORG_GAP)}px"></span>` : '';
+    html += `
+      <div class="org-lv l${t+1}">
+        <span class="org-lb"><span class="lv">${pad2(t+1)}</span>${info.ar}<em>${info.en}</em></span>
+        <div class="org-row ${people.length > 1 ? 'multi' : ''}">${bar}${people.map(p => `
+          <button type="button" class="h-card t-${tierOf(p.rank)} ${p.status === 'online' ? 'on' : 'off'}" data-idx="${p.idx}">
+            <span class="h-ph"><span><span class="ini">${initials(p.name)}</span>${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>${p.status === 'online' ? '<span class="h-on"></span>' : ''}</span>
+            <span class="h-name">${esc(p.name)}</span>
+            <span class="tag">${esc(p.rank)}</span>
           </button>`).join('')}
         </div>
-      </section>`);
+      </div>`;
   });
-  hierarchyTreeEl.innerHTML = '';
-  if(!any){ hierarchyTreeEl.innerHTML = '<div class="empty">لا توجد بيانات قيادة متاحة حالياً</div>'; return; }
-  hierarchyTreeEl.appendChild(wrap);
+  hierarchyTreeEl.innerHTML = any ? `<div class="org">${html}</div>` : '<div class="empty">لا توجد بيانات قيادة متاحة حالياً</div>';
 }
 
 /* ---------- قراءة CSV ---------- */
@@ -1271,7 +1326,12 @@ function clockText(ms){
 /* يشغّل عداد لعنصر، ويستدعي onEnd مرة وحدة لما ينتهي */
 function runCountdown(el, raw, key, onEnd, bag){
   const deadline = resolveChallengeDeadline(raw, key);
-  if(!deadline){ el.textContent = sanitizeSheetText(raw); return; }
+  if(!deadline){
+    const v = sanitizeSheetText(raw);
+    /* كلمات مثل Now / الحين / مستمر = مهمة مفتوحة بدون وقت نهاية */
+    el.textContent = /^(now|open|ongoing|الحين|الآن|الان|مستمر|مستمرة|مفتوح|مفتوحة)$/i.test(v) ? 'مستمرة' : v;
+    return;
+  }
   let id = null;
   const tick = () => {
     const diff = deadline.getTime() - Date.now();
@@ -1359,31 +1419,32 @@ const memberSearch = document.getElementById('member-search');
 const mfOnline = document.getElementById('mf-online'), mfAll = document.getElementById('mf-all');
 const mCount = document.getElementById('m-count');
 let memberFilter = 'online';
-const GROUPS = [
-  { key:'leader', title:'القائد', en:'SQUAD LEADER' },
-  { key:'co', title:'نواب القائد', en:'CO-LEADERS' },
-  { key:'mgmt', title:'الإدارة', en:'MANAGEMENT' },
-  { key:'member', title:'الأعضاء', en:'OPERATORS' },
-];
+/* الأقسام: مستويات الهرم أول (القيادة / الإشراف / الإدارة) وبعدها باقي الأعضاء */
 function renderMembers(list){
   mCount.textContent = list.length + ' عضو';
   if(!list.length){ membersGrid.innerHTML = '<div class="empty">لا يوجد أعضاء مطابقين</div>'; return; }
+  const groups = HIERARCHY_ORDER.map((names, t) => {
+    const info = tierInfo(t);
+    const order = n => names.findIndex(x => x.trim().toLowerCase() === n.trim().toLowerCase());
+    return { cls:'g-lead', title:info.ar, en:info.en, items:list.filter(m => levelOf(m) === t).sort((a,b) => order(a.name) - order(b.name)) };
+  });
+  groups.push({ cls:'g-ops', title:'الأعضاء', en:'OPERATORS',
+    items:list.filter(m => levelOf(m) === -1).sort((a,b) => (a.status === b.status ? 0 : a.status === 'online' ? -1 : 1) || b.hours - a.hours) });
   let n = 0;
-  membersGrid.innerHTML = GROUPS.map(g => {
-    const items = list.filter(m => tierOf(m.rank) === g.key).sort((a,b) => (a.status === b.status ? 0 : a.status === 'online' ? -1 : 1) || b.hours - a.hours);
-    if(!items.length) return '';
-    return `<section class="m-group g-${g.key}">
-      <header class="m-gh"><h3>${g.title}</h3><em>${g.en}</em><span class="n">${items.length}</span><span class="line"></span></header>
-      <div class="m-grid">${items.map(m => `
-        <button type="button" class="mc t-${g.key} ${m.status === 'online' ? 'on' : 'off'} rise" style="animation-delay:${Math.min(n++, 24) * 0.03}s" data-idx="${m.idx}">
-          ${avatar(m, '', m.status === 'online' ? '<span class="dot"></span>' : '')}
-          <span class="mc-body">
-            <span class="mc-name">${esc(m.name)}</span>
-            <span class="mc-meta"><span class="tag">${esc(m.rank)}</span>${m.nick && m.nick.toLowerCase() !== 'null' ? `<span class="mc-nick">@${esc(m.nick)}</span>` : ''}</span>
-          </span>
-        </button>`).join('')}
-      </div></section>`;
-  }).join('');
+  membersGrid.innerHTML = groups.filter(g => g.items.length).map(g => `
+    <section class="m-group ${g.cls}">
+      <header class="m-gh"><h3>${g.title}</h3><em>${g.en}</em><span class="n">${g.items.length}</span><span class="line"></span></header>
+      <div class="m-grid">${g.items.map(m => {
+        const tier = tierOf(m.rank), lead = g.cls === 'g-lead';
+        const nick = m.nick && m.nick.toLowerCase() !== 'null' ? `<span class="mc-nick">@${esc(m.nick)}</span>` : '';
+        return `
+        <button type="button" class="mc ${lead ? 't-' + (tier === 'member' ? 'mgmt' : tier) : ''} ${m.status === 'online' ? 'on' : 'off'} rise" style="animation-delay:${Math.min(n++, 24) * 0.03}s" data-idx="${m.idx}">
+          <span class="mc-ph"><span class="ini">${initials(m.name)}</span>${m.photo ? `<img src="${esc(m.photo)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>
+          <span class="mc-st"><i></i>${m.status === 'online' ? 'متصل' : 'غير متصل'}</span>
+          <span class="mc-info"><span class="mc-name">${esc(m.name)}</span><span class="tag">${esc(m.rank)}</span>${nick}</span>
+        </button>`; }).join('')}
+      </div>
+    </section>`).join('');
 }
 function refreshMembers(){
   const q = memberSearch.value.trim().toLowerCase();
@@ -1470,13 +1531,14 @@ function expireTask(i){
   const card = document.getElementById('task-card-' + i); if(!card) return;
   const s = card.querySelector('.op-stamp span'); if(s) s.innerHTML = 'انتهى الوقت<em>MISSION CLOSED</em>';
   const b = document.getElementById('task-countdown-' + i); if(b) b.textContent = 'انتهى';
+  const st = card.querySelector('.op-st'); if(st) st.innerHTML = '<i></i>منتهية';
   card.classList.remove('waiting'); card.classList.add('ended');
 }
 function renderTasks(list){
   _taskCountdownTimers.forEach(clearInterval); _taskCountdownTimers = [];
   if(!list.length){ tasksList.innerHTML = '<div class="empty">ما فيه مهام حالياً</div>'; return; }
-  tasksList.innerHTML = list.map((t, i) => `
-    <article class="op st-${t.status} ${t.status === 'pending' ? 'waiting' : ''} rise" id="task-card-${i}" style="animation-delay:${0.05 + i*0.06}s">
+  tasksList.innerHTML = list.map((t, i) => t.status === 'pending' ? secretTaskHTML(list, i) : `
+    <article class="op st-${t.status} rise" id="task-card-${i}" style="animation-delay:${0.05 + i*0.06}s">
       <div class="op-ring"><div><b id="task-pct-${i}">0%</b><small>الإنجاز</small></div></div>
       <div class="op-body">
         <div class="op-top"><span class="op-code">TSK-${pad2(i+1)}</span><span class="op-st"><i></i>${statusLabel[t.status]}</span></div>
@@ -1484,13 +1546,42 @@ function renderTasks(list){
         ${t.desc ? `<p>${esc(t.desc)}</p>` : ''}
         ${footHTML('task-countdown-' + i, !!t.due, t.points)}
       </div>
-      ${stamp('task-lock-' + i, 'قيد الانتظار', 'AWAITING ORDERS')}
+      ${stamp('task-lock-' + i, 'انتهى الوقت', 'MISSION CLOSED')}
     </article>`).join('');
   list.forEach((t, i) => {
+    if(t.status === 'pending'){
+      const bar = document.getElementById('task-gate-' + i);
+      if(bar) setTimeout(() => bar.style.width = bar.dataset.w + '%', 350);
+      return;
+    }
     animateRing(document.getElementById('task-card-' + i), document.getElementById('task-pct-' + i), t.progress);
     const el = document.getElementById('task-countdown-' + i);
     if(el) runCountdown(el, t.due, 'task#' + i + '#' + (t.title || ''), () => expireTask(i), _taskCountdownTimers);
   });
+}
+
+/* مهمة سرية (status = pending): ما ينعرض عنوانها ولا تفاصيلها أبداً — تنفتح بعد ما تكتمل المهمة اللي قبلها */
+function secretTaskHTML(list, i){
+  const prev = i > 0 ? list[i-1] : null;
+  const prevDone = prev ? (prev.status === 'done' ? 100 : prev.status === 'pending' ? 0 : Math.round(clamp100(prev.progress))) : 0;
+  const gate = prev ? `
+        <div class="sec-gate">
+          <span class="g-l">تنفتح بعد إنجاز <b>TSK-${pad2(i)}</b></span>
+          <span class="g-bar"><i id="task-gate-${i}" data-w="${prevDone}"></i></span>
+          <span class="g-r">باقي <b>${100 - prevDone}%</b></span>
+        </div>` : `
+        <div class="sec-gate"><span class="g-l">تنفتح بأمر من القيادة</span></div>`;
+  return `
+    <article class="op secret rise" id="task-card-${i}" style="animation-delay:${0.05 + i*0.06}s">
+      <div class="sec-lock"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg></span></div>
+      <div class="op-body">
+        <div class="op-top"><span class="op-code">TSK-${pad2(i+1)}</span><span class="op-st"><i></i>مقفلة</span></div>
+        <h3>مهمة سرية</h3>
+        <div class="sec-lines"><i></i><i></i></div>
+        ${gate}
+      </div>
+      <span class="sec-code" aria-hidden="true"></span>
+    </article>`;
 }
 
 /* ---------- القوانين ---------- */
@@ -1542,7 +1633,7 @@ loadSheet(CHALLENGE_CSV_URL)
   .then(rows => { const c = sheetRowsToChallenges(rows); window.squadChallenges = c; renderChallenge(c); })
   .catch(() => { challengeListEl.innerHTML = '<div class="empty">تعذّر تحميل التحديات من الشيت.</div>'; });
 loadSheet(TASKS_CSV_URL)
-  .then(rows => { const t = sheetRowsToTasks(rows); window.squadTasks = t; renderTasks(t); })
+  .then(rows => { const t = sheetRowsToTasks(rows); window.squadTasks = t.map(x => x.status === 'pending' ? { title:'مهمة سرية 🔒', desc:'', status:'pending', progress:0, due:'', points:0 } : x); renderTasks(t); })
   .catch(() => { tasksList.innerHTML = '<div class="empty">تعذّر تحميل المهام من الشيت.</div>'; });
 loadSheet(RULES_CSV_URL)
   .then(rows => renderRules(sheetRowsToRules(rows)))
@@ -1619,7 +1710,7 @@ async function aiAsk(raw){
 function remainingText(raw, keyHint){
   if(!raw) return '';
   const d = resolveChallengeDeadline(raw, keyHint);
-  if(!d) return raw;
+  if(!d){ const v = sanitizeSheetText(raw); return /^(now|open|ongoing|الحين|الآن|الان|مستمر|مستمرة|مفتوح|مفتوحة)$/i.test(v) ? 'مستمرة' : v; }
   const diff = d.getTime() - Date.now();
   if(diff <= 0) return 'انتهى';
   const s = Math.floor(diff / 1000), days = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
