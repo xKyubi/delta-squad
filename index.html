@@ -210,16 +210,18 @@ button{ font-family:inherit; }
 .op-stamp em{ font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.34em; margin-top:2px; }
 .op.ended .op-stamp{ opacity:1; }
 .op.ended .op-stamp span{ scale:1; }
-/* ختم "انتهى التحدي" على شكل شريط تحذير (تحديات الأسبوع) */
-.op-stamp.tape .tape-box{ position:relative; display:flex; align-items:center; justify-content:center; min-width:220px; padding:20px 34px;
-  border-radius:14px; background:#0b0c0e; overflow:hidden; scale:.82; transition:scale .45s cubic-bezier(.3,1.6,.5,1);
-  box-shadow:0 16px 34px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06); }
-.op.ended .op-stamp.tape .tape-box{ scale:1; }
-.op-stamp.tape .tape-strip{ position:absolute; left:-8px; right:-8px; height:18px;
-  background:repeating-linear-gradient(135deg, var(--warn) 0 15px, #0b0c0e 15px 30px); }
-.op-stamp.tape .tape-strip.top{ top:-8px; }
-.op-stamp.tape .tape-strip.bottom{ bottom:-8px; }
-.op-stamp.tape b{ position:relative; z-index:1; font-weight:800; font-size:19px; color:var(--warn); text-shadow:0 0 16px rgba(255,80,60,.6); white-space:nowrap; }
+/* شريط "انتهى التحدي" (تحديات الأسبوع): بانر عادي بعرض الكرت، يحل محل النص بدل ما يتراكب فوقه */
+.end-tape{ display:none; position:relative; align-items:center; justify-content:center; margin-top:4px; padding:18px 14px;
+  border-radius:12px; background:#0b0c0e; overflow:hidden;
+  box-shadow:0 10px 26px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06); }
+.op.ended .end-tape{ display:flex; }
+.end-tape .tape-strip{ position:absolute; left:-10px; right:-10px; height:16px;
+  background:repeating-linear-gradient(135deg, var(--warn) 0 14px, #0b0c0e 14px 28px); }
+.end-tape .tape-strip.top{ top:0; }
+.end-tape .tape-strip.bottom{ bottom:0; }
+.end-tape b{ position:relative; z-index:1; font-weight:800; font-size:17px; color:var(--warn); text-shadow:0 0 14px rgba(255,80,60,.6); }
+.op.challenge.ended .op-body > h3, .op.challenge.ended .op-body > p, .op.challenge.ended .op-body > .op-foot{ display:none; }
+.op.challenge.ended .op-ring{ filter:grayscale(1); opacity:.55; }
 /* ===== المهمة السرية (pending) ===== */
 .op.secret{ grid-template-columns:150px minmax(0,1fr); padding:0; gap:0; align-items:stretch; border-color:rgba(255,255,255,.1);
   background:repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 14px), var(--panel); }
@@ -254,7 +256,7 @@ button{ font-family:inherit; }
 .op.waiting{ border-style:dashed; border-color:rgba(232,184,90,.28); }
 .op.waiting .op-st{ color:var(--amber); border-color:rgba(232,184,90,.35); background:rgba(232,184,90,.08); }
 .op.waiting .op-ring, .op.waiting .op-foot{ opacity:.6; }
-.op.ended > :not(.op-stamp){ filter:grayscale(1); opacity:.38; }
+.op.ended:not(.challenge) > :not(.op-stamp){ filter:grayscale(1); opacity:.38; }
 
 /* ---------- الأعضاء ---------- */
 .m-tools{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:30px; }
@@ -1494,7 +1496,7 @@ const challengeListEl = document.getElementById('challenge-list');
 let _challengeCountdownTimers = [];
 function stamp(id, title, en){ return `<div class="op-stamp" id="${id}"><span>${title}<em>${en}</em></span></div>`; }
 function tapeStamp(id, text){
-  return `<div class="op-stamp tape" id="${id}"><div class="tape-box"><i class="tape-strip top"></i><b>${text}</b><i class="tape-strip bottom"></i></div></div>`;
+  return `<div class="end-tape" id="${id}"><i class="tape-strip top"></i><b>${text}</b><i class="tape-strip bottom"></i></div>`;
 }
 function footHTML(timeId, hasTime, points){
   return `<div class="op-foot">
@@ -1520,8 +1522,8 @@ function renderChallenge(list){
         <h3>${esc(c.title)}</h3>
         ${c.desc ? `<p>${esc(c.desc)}</p>` : ''}
         ${footHTML('challenge-countdown-' + i, !!c.daysLeft, c.points)}
+        ${tapeStamp('challenge-lock-' + i, 'انتهى التحدي')}
       </div>
-      ${tapeStamp('challenge-lock-' + i, 'انتهى التحدي')}
     </article>`).join('');
   list.forEach((c, i) => {
     animateRing(document.getElementById('challenge-card-' + i), document.getElementById('challenge-pct-' + i), c.target);
