@@ -1791,7 +1791,7 @@ function answerLocal(q){
     return 'التوب بالساعات:\n' + d.byHours.slice(0,5).map((r,i)=>`${i+1}. ${r.name} — ${r.hours.toFixed(1)} ساعة`).join('\n') + '\n\nالترتيب يتصفّر كل جمعة 3:00 الفجر.';
   }
   if(has('تحدي','تحديات','challenge')){
-    if(!d.challenges.length) return 'ما فيه تحدي نشط هالأسبوع.';
+    if(!d.challenges.length) return 'انتهى التحدي.';
     return d.challenges.map(c => `• ${c.title}\n${c.desc}\nالتقدم: ${c.target}%${c.points ? ` | المكافأة: ${c.points} نقطة` : ''}${c.remaining ? `\nالمتبقي: ${c.remaining}` : ''}`).join('\n\n');
   }
   if(has('مهمه','مهام','مهمات','task')){
