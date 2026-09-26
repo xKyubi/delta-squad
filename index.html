@@ -210,16 +210,10 @@ button{ font-family:inherit; }
 .op-stamp em{ font-style:normal; font-family:var(--f-en); font-size:10px; letter-spacing:.34em; margin-top:2px; }
 .op.ended .op-stamp{ opacity:1; }
 .op.ended .op-stamp span{ scale:1; }
-/* شريط "انتهى التحدي" (تحديات الأسبوع): ريبون مائل يغطي الكرت كامل */
-.end-tape{ display:none; position:absolute; inset:0; z-index:5; align-items:center; justify-content:center; pointer-events:none; }
-.op.ended .end-tape{ display:flex; }
-.end-tape .ribbon{ position:relative; width:150%; padding:13px 0; rotate:-8deg; display:flex; align-items:center; justify-content:center;
-  background:repeating-linear-gradient(135deg, var(--warn) 0 20px, #0b0c0e 20px 40px);
-  box-shadow:0 14px 30px rgba(0,0,0,.6); }
-.end-tape .ribbon b{ background:#0b0c0e; padding:8px 30px; border-radius:8px; font-size:18px; font-weight:800;
-  color:var(--warn); text-shadow:0 0 14px rgba(255,80,60,.6); white-space:nowrap; }
+/* التحدي المنتهي: شكل "معلومة مخفية" زي المهمة السرية، مع الإبقاء على حلقة الإنجاز ظاهرة عادي */
+.chal-ended-block{ display:none; }
+.op.challenge.ended .chal-ended-block{ display:block; }
 .op.challenge.ended .op-body > h3, .op.challenge.ended .op-body > p, .op.challenge.ended .op-body > .op-foot{ display:none; }
-.op.challenge.ended .op-ring{ filter:grayscale(1); opacity:.55; }
 /* ===== المهمة السرية (pending) ===== */
 .op.secret{ grid-template-columns:150px minmax(0,1fr); padding:0; gap:0; align-items:stretch; border-color:rgba(255,255,255,.1);
   background:repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 14px), var(--panel); }
@@ -1493,8 +1487,11 @@ document.addEventListener('click', e => {
 const challengeListEl = document.getElementById('challenge-list');
 let _challengeCountdownTimers = [];
 function stamp(id, title, en){ return `<div class="op-stamp" id="${id}"><span>${title}<em>${en}</em></span></div>`; }
-function tapeStamp(id, text){
-  return `<div class="end-tape" id="${id}"><div class="ribbon"><b>${text}</b></div></div>`;
+function endedChallengeBlock(id){
+  return `<div class="chal-ended-block" id="${id}">
+    <div class="sec-lines"><i></i><i></i></div>
+    <div class="sec-gate"><span class="g-l">انتهى التحدي</span></div>
+  </div>`;
 }
 function footHTML(timeId, hasTime, points){
   return `<div class="op-foot">
@@ -1520,8 +1517,8 @@ function renderChallenge(list){
         <h3>${esc(c.title)}</h3>
         ${c.desc ? `<p>${esc(c.desc)}</p>` : ''}
         ${footHTML('challenge-countdown-' + i, !!c.daysLeft, c.points)}
+        ${endedChallengeBlock('challenge-end-' + i)}
       </div>
-      ${tapeStamp('challenge-lock-' + i, 'انتهى التحدي')}
     </article>`).join('');
   list.forEach((c, i) => {
     animateRing(document.getElementById('challenge-card-' + i), document.getElementById('challenge-pct-' + i), c.target);
