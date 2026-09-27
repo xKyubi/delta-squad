@@ -2248,13 +2248,12 @@ reForm.addEventListener('submit', async e => {
     quoted,
   ].join('\n').replace(/^\n+/, '');
   const embed = {
-    author:{ name: isDisc ? 'DELTA SQUAD • المخالفات والشكاوى' : 'DELTA SQUAD • نظام التقارير', icon_url:'attachment://delta-logo.png' },
+    author:{ name: isDisc ? 'DELTA SQUAD • المخالفات والشكاوى' : 'DELTA SQUAD • نظام التقارير' },
     title: reSafe(rep.title).slice(0,250),
     description: desc.slice(0, 4000),
     color: RE_COLORS[rep.type] || 0xD9D9DA,
     thumbnail:{ url:'attachment://delta-logo.png' },
     image:{ url:'attachment://delta-banner.jpg' },
-    footer:{ text:'تقرير #' + repId, icon_url:'attachment://delta-logo.png' },
     timestamp:new Date().toISOString(),
   };
   const payload = {
