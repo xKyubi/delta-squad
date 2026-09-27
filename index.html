@@ -875,7 +875,7 @@ button{ font-family:inherit; }
       <div class="timeline-item"><div class="timeline-card"><h4><span class="timeline-marker">4</span>بروتوكول التواصل والراديو</h4><p>الالتزام بنقل المعلومات بدقة وإيجاز في موجة الراديو، وتجنب التشتيت أو الأحاديث الجانبية.</p></div></div>
       <div class="timeline-item"><div class="timeline-card"><h4><span class="timeline-marker">5</span>الجدية والانضباط الميداني</h4><p>الالتزام التام أثناء المباشرات والمهمات، والابتعاد عن العشوائية أو الفوضى.</p></div></div>
       <div class="timeline-item"><div class="timeline-card"><h4><span class="timeline-marker">6</span>المشاركة والمتابعة</h4><p>الحرص على تسجيل التواجد الدائم، وإبلاغ القيادة في حال الاعتذار أو الغياب.</p></div></div>
-      <div class="timeline-item"><div class="timeline-card"><h4><span class="timeline-marker">7</span>الأشخاص المصرح لهم باستخراج الفرقة</h4><p>abadi Abdullah — Nawaf Almutiri — Dafallah ibrahim</p></div></div>
+      <div class="timeline-item"><div class="timeline-card"><h4><span class="timeline-marker">7</span>الأشخاص المصرح لهم باستخراج الفرقة</h4><p>Muqrin Fahad - abadi Abdullah</p></div></div>
     </div>
   </div>
 </div>
@@ -1545,7 +1545,7 @@ function renderTasks(list){
     <article class="op st-${t.status} rise" id="task-card-${i}" style="animation-delay:${0.05 + i*0.06}s">
       <div class="op-ring"><div><b id="task-pct-${i}">0%</b><small>الإنجاز</small></div></div>
       <div class="op-body">
-        <div class="op-top"><span class="op-code">TSK-${pad2(i+1)}</span><span class="op-st"><i></i>${statusLabel[t.status]}</span></div>
+        <div class="op-top"><span class="op-code">TASK-${pad2(i+1)}</span><span class="op-st"><i></i>${statusLabel[t.status]}</span></div>
         <h3>${esc(t.title)}</h3>
         ${t.desc ? `<p>${esc(t.desc)}</p>` : ''}
         ${footHTML('task-countdown-' + i, !!t.due, t.points)}
@@ -1570,7 +1570,7 @@ function secretTaskHTML(list, i){
   const prevDone = prev ? (prev.status === 'done' ? 100 : prev.status === 'pending' ? 0 : Math.round(clamp100(prev.progress))) : 0;
   const gate = prev ? `
         <div class="sec-gate">
-          <span class="g-l">تنفتح بعد إنجاز <b>TSK-${pad2(i)}</b></span>
+          <span class="g-l">تنفتح بعد إنجاز <b>TASK-${pad2(i)}</b></span>
           <span class="g-bar"><i id="task-gate-${i}" data-w="${prevDone}"></i></span>
           <span class="g-r">باقي <b>${100 - prevDone}%</b></span>
         </div>` : `
@@ -1579,7 +1579,7 @@ function secretTaskHTML(list, i){
     <article class="op secret rise" id="task-card-${i}" style="animation-delay:${0.05 + i*0.06}s">
       <div class="sec-lock"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg></span></div>
       <div class="op-body">
-        <div class="op-top"><span class="op-code">TSK-${pad2(i+1)}</span><span class="op-st"><i></i>مقفلة</span></div>
+        <div class="op-top"><span class="op-code">TASK-${pad2(i+1)}</span><span class="op-st"><i></i>مقفلة</span></div>
         <h3>مهمة سرية</h3>
         <div class="sec-lines"><i></i><i></i></div>
         ${gate}
