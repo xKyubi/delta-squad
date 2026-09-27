@@ -2067,7 +2067,7 @@ function nodeToMd(node){
     case 'I': case 'EM': return wrapMd(kids(), '*');
     case 'U': return wrapMd(kids(), '__');
     case 'S': case 'STRIKE': case 'DEL': return wrapMd(kids(), '~~');
-    case 'HR': return '\n━━━━━━━━━━━━━━\n';
+    case 'HR': return '\n▬▬▬▬▬▬▬▬▬▬\n';
     case 'H1': case 'H2': case 'H3': case 'H4': return '\n### ' + kids().trim() + '\n';
     case 'BLOCKQUOTE': return '\n' + kids().trim().split('\n').map(l => '> ' + l).join('\n') + '\n';
     case 'UL': return '\n' + [...node.children].map(li => '- ' + nodeToMd(li).trim()).join('\n') + '\n';
@@ -2085,7 +2085,7 @@ function nodeToMd(node){
 function editorMarkdown(){
   return nodeToMd(reEditor)
     .split('\n').filter(l => !/^\s*(-|\d+\.|>)\s*$/.test(l)).join('\n')   /* يشيل النقاط والأرقام الفاضية */
-    .replace(/(━+\s*\n\s*)+(━+)/g, '$2').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    .replace(/([━▬]+\s*\n\s*)+([━▬]+)/g, '$2').replace(/^\s*[━▬]+\s*\n/, '').replace(/\n\s*[━▬]+\s*$/, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 function editorPlainLength(){ return reEditor.innerText.replace(/\s+/g, ' ').trim().length; }
 
@@ -2217,25 +2217,31 @@ reForm.addEventListener('submit', async e => {
   const wait = RE_COOLDOWN_MS - (Date.now() - last);
   if(wait > 0){ setMsg(T('wait', Math.ceil(wait / 1000)), true); return; }
 
-  const emo = RE_EMOJI[rep.type] || '📋';
-  const SEP = '━━━━━━━━━━━━━━━━━━';
-  const fields = [
-    { name:'💬 ' + T('fDiscord'), value:'<@' + rep.did + '>', inline:true },
-    { name:'🏷️ ' + T('fType'), value:emo + ' ' + reTypeLabel(), inline:true },
-    { name:'👤 ' + T('fName'), value:reSafe(rep.name).slice(0,256), inline:true },
+  /* ===== شكل رسالة الديسكورد ===== */
+  const LINE = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+  const repId = (Date.now().toString(36) + Math.random().toString(36).slice(2, 5)).toUpperCase().slice(-6);
+  const body = reSafe(rep.content || T('noDesc')).slice(0, 3400);
+  const info = [
+    '**' + T('fName') + ':** ' + reSafe(rep.name).slice(0,100),
+    '**' + T('fDiscord') + ':** <@' + rep.did + '>',
+    '**' + T('fType') + ':** ' + reTypeLabel(),
   ];
-  if(rep.mode === 'link') fields.push({ name:'🔗 ' + T('fLink'), value:rep.link.slice(0,1000) });
-
-  const body = reSafe(rep.content || T('noDesc')).slice(0, 3800);
+  if(rep.mode === 'link') info.push('**' + T('fLink') + ':** ' + rep.link.slice(0,500));
+  const desc = [
+    isDisc ? '> 🔒 **' + T('secret') + '**\n' : '',
+    info.join('\n'),
+    LINE,
+    body,
+    LINE,
+  ].filter(Boolean).join('\n');
   const embed = {
-    author:{ name:(T('fBy') + ': ' + reSafe(rep.name)).slice(0,250), icon_url:'attachment://delta-logo.png' },
-    title:(emo + ' ' + reSafe(rep.title)).slice(0,250),
-    description:(isDisc ? '🔒 **' + T('secret') + '**\n' : '') + SEP + '\n' + body + '\n' + SEP,
-    color:RE_COLORS[rep.type] || 0xD9D9DA,
-    fields,
-    footer:{ text: isDisc ? T('footD') : T('foot'), icon_url:'attachment://delta-logo.png' },
-    image:{ url:'attachment://delta-banner.jpg' },
+    author:{ name: isDisc ? 'DELTA SQUAD • المخالفات والشكاوى' : 'DELTA SQUAD • نظام التقارير', icon_url:'attachment://delta-logo.png' },
+    title: reSafe(rep.title).slice(0,250),
+    description: desc.slice(0, 4000),
+    color: RE_COLORS[rep.type] || 0xD9D9DA,
     thumbnail:{ url:'attachment://delta-logo.png' },
+    image:{ url:'attachment://delta-banner.jpg' },
+    footer:{ text:'تقرير #' + repId + (isDisc ? ' • سري' : ''), icon_url:'attachment://delta-logo.png' },
     timestamp:new Date().toISOString(),
   };
   const payload = {
