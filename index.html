@@ -1264,7 +1264,7 @@ function sheetRowsToMembers(rows){
   const t = sheetTable(rows, 'name'); if(!t) return [];
   return t.body.filter(r => t.get(r,'name')).map(r => ({
     name: t.get(r,'name'), nick: t.get(r,'nick'), rank: t.get(r,'rank') || 'Member',
-    status: t.has('status') && t.get(r,'status').toLowerCase() === 'offline' ? 'offline' : 'online',
+    status: t.has('status') && /^(off|offline|0|no|غير متصل|اوف)$/i.test(t.get(r,'status')) ? 'offline' : 'online',   /* on / off أو online / offline */
     hours: parseFloat(t.get(r,'hours')) || 0, points: parseFloat(t.get(r,'points')) || 0,
   }));
 }
@@ -1536,6 +1536,8 @@ function renderChallenge(list){
     </article>`).join('');
   list.forEach((c, i) => {
     animateRing(document.getElementById('challenge-card-' + i), document.getElementById('challenge-pct-' + i), c.target);
+    /* لو target وصل 100 ينتهي التحدي على طول حتى لو باقي وقت */
+    if(c.target >= 100){ lockChallengeCard(i); return; }
     const el = document.getElementById('challenge-countdown-' + i);
     if(el) runCountdown(el, c.daysLeft, (c.title || '') + '#' + i, () => lockChallengeCard(i), _challengeCountdownTimers);
   });
@@ -1648,7 +1650,7 @@ loadSheetCached(SHEET_CSV_URL,
   rows => { const m = sheetRowsToMembers(rows); if(m.length) initFromMembers(m); else showSheetError('الشيت اترجع فاضي (0 أعضاء) — تأكد فيه بيانات تحت صف العناوين.'); },
   err => showSheetError(err && err.message ? err.message : String(err)));
 loadSheetCached(CHALLENGE_CSV_URL,
-  rows => { const c = sheetRowsToChallenges(rows); window.squadChallenges = c.map((x, i) => { const d = resolveChallengeDeadline(x.daysLeft, (x.title || '') + '#' + i); return d && d.getTime() <= Date.now() ? { title:'تحدي منتهي 🔒', desc:'', target:x.target, daysLeft:'', points:0 } : x; }); renderChallenge(c); },
+  rows => { const c = sheetRowsToChallenges(rows); window.squadChallenges = c.map((x, i) => { const d = resolveChallengeDeadline(x.daysLeft, (x.title || '') + '#' + i); return (x.target >= 100 || (d && d.getTime() <= Date.now())) ? { title:'تحدي منتهي 🔒', desc:'', target:x.target, daysLeft:'', points:0 } : x; }); renderChallenge(c); },
   () => { challengeListEl.innerHTML = '<div class="empty">تعذّر تحميل التحديات من الشيت.</div>'; });
 loadSheetCached(TASKS_CSV_URL,
   rows => { const t = sheetRowsToTasks(rows); window.squadTasks = t.map(x => x.status === 'pending' ? { title:'مهمة سرية 🔒', desc:'', status:'pending', progress:0, due:'', points:0 } : x); renderTasks(t); },
@@ -2257,7 +2259,6 @@ reForm.addEventListener('submit', async e => {
     timestamp:new Date().toISOString(),
   };
   const payload = {
-    username: isDisc ? 'Delta Discipline' : 'Delta Reports',
     allowed_mentions:{ parse:[] },   /* المنشن يطلع بالرسالة بدون ما يسوي بنق */
     embeds:[embed],
     attachments:[ { id:0, filename:'delta-banner.jpg' }, { id:1, filename:'delta-logo.png' } ],
