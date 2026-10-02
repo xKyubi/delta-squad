@@ -1200,13 +1200,11 @@ const MEMBER_PHOTOS = {
 /* ---------- هرم القيادة (بالترتيب من الأعلى) ---------- */
 const HIERARCHY_ORDER = [
   ['Muqrin Fahad', 'abadi Abdullah'],
-  ['Nawaf Almutiri'],
-  ['Mohammed Alotaibi', 'Yousef Binadnan', 'Dafallah ibrahim'],
+  ['Dafallah ibrahim'],
 ];
 const HIER_TIERS = [
   { ar:'القيادة', en:'COMMAND' },
-  { ar:'الإشراف', en:'SUPERVISION' },
-  { ar:'الإدارة', en:'MANAGEMENT' },
+  { ar:'الإشراف', en:'MANAGEMENT' },
 ];
 const tierInfo = t => HIER_TIERS[t] || { ar:'المستوى ' + (t+1), en:'LEVEL ' + pad2(t+1) };
 /* مستوى العضو بالهرم (0 = أعلى) أو -1 لو مو من القيادة */
